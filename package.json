@@ -1,0 +1,7 @@
+{
+  "name": "@aragon/network",
+  "private": true,
+  "version": "0.0.1",
+  "author": "Aragon Association <legal@aragon.org>",
+  "license": "(CC0 1.0 Universal OR MIT)"
+}
