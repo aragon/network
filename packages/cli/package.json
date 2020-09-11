@@ -5,14 +5,18 @@
   "author": "Aragon Association <legal@aragon.org>",
   "license": "MIT",
   "scripts": {
+    "help": "buidler help",
     "console": "buidler console",
-    "create-poll:rinkeby": "buidler create-poll --network rinkeby",
-    "create-transfer:rinkeby": "buidler create-transfer --network rinkeby",
-    "challenge:rinkeby": "buidler challenge --network rinkeby",
-    "dispute:rinkeby": "buidler dispute --network rinkeby",
-    "settle:rinkeby": "buidler settle --network rinkeby",
-    "vote:rinkeby": "buidler vote --network rinkeby",
-    "sign:rinkeby": "buidler sign --network rinkeby"
+    "sign": "buidler sign --network rinkeby",
+    "create-poll": "buidler create-poll --network rinkeby",
+    "create-transfer": "buidler create-transfer --network rinkeby",
+    "challenge": "buidler challenge --network rinkeby",
+    "dispute": "buidler dispute --network rinkeby",
+    "settle": "buidler settle --network rinkeby",
+    "vote": "buidler vote --network rinkeby",
+    "delegate-vote": "buidler delegate-vote --network rinkeby",
+    "execute-proposal": "buidler execute-proposal --network rinkeby",
+    "close-proposal": "buidler close-proposal --network rinkeby"
   },
   "devDependencies": {
     "@aragon/contract-helpers-test": "^0.1.0",
