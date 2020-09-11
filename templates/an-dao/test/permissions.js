@@ -40,8 +40,8 @@ contract('AN DAO, permissions', ([owner]) => {
     template = await ANDAOTemplate.new(config.daoFactory, config.ens, config.minimeFactory)
   })
 
-  const loadDAO = async (daoReceipt, agreementReceipt, appsReceipt) => {
-    dao = await Kernel.at(getEventArgument(daoReceipt, 'DeployDao', 'dao'))
+  const loadDAO = async (daoAgreementReceipt, appsReceipt) => {
+    dao = await Kernel.at(getEventArgument(daoAgreementReceipt, 'DeployDao', 'dao'))
     acl = await ACL.at(await dao.acl())
 
     evmScriptRegistry = await EVMScriptRegistry.at(await acl.getEVMScriptRegistry())
@@ -57,19 +57,16 @@ contract('AN DAO, permissions', ([owner]) => {
     agent = await Agent.at(installedApps.agent[0])
 
     // agreement
-    const installedAgreementApps = getInstalledAppsById(agreementReceipt)
+    const installedAgreementApps = getInstalledAppsById(daoAgreementReceipt)
     assert.equal(installedAgreementApps.agreement.length, 1, 'should have installed 1 agreement app')
     agreement = await Agreement.at(installedAgreementApps.agreement[0])
   }
 
   before('create instance', async () => {
     daoID = randomId()
-    const daoReceipt = await template.createDAO()
-    console.log('Gas tx 1', daoReceipt.receipt.gasUsed)
-
     const stakingFactory = await StakingFactory.new()
-    const agreementReceipt = await template.installAgreement(config.agreement.title, config.agreement.content, token.address, stakingFactory.address) // token, so it’s a contract, no court in localhost network
-    console.log('Gas tx 2', agreementReceipt.receipt.gasUsed)
+    const daoAgreementReceipt = await template.createDaoAndInstallAgreement(config.agreement.title, config.agreement.content, token.address, stakingFactory.address) // token, so it’s a contract, no court in localhost network
+    console.log('Gas tx 1', daoAgreementReceipt.receipt.gasUsed)
 
     const { disputableVoting1, disputableVoting2 } = config
     const {
@@ -81,9 +78,9 @@ contract('AN DAO, permissions', ([owner]) => {
       collatrealSettingsArray: collateralRequirements2
     } = votingParamsToArrays(token.address, disputableVoting2)
     const appsReceipt = await template.installApps(token.address, votingSettings1, collateralRequirements1, votingSettings2, collateralRequirements2)
-    console.log('Gas tx 3', appsReceipt.receipt.gasUsed)
+    console.log('Gas tx 2', appsReceipt.receipt.gasUsed)
 
-    await loadDAO(daoReceipt, agreementReceipt, appsReceipt)
+    await loadDAO(daoAgreementReceipt, appsReceipt)
 
     console.log('owner      :', owner)
     console.log('template   :', template.address)

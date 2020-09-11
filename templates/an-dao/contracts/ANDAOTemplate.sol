@@ -29,16 +29,14 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
         public
     {}
 
-    function createDAO() external {
-        (Kernel dao,) = _createDAO();
-
-        _storeCache(dao);
+    function () external {
     }
 
-    function installAgreement(string calldata _title, bytes calldata _content, address _arbitrator, address _stakingFactory) external {
-        Kernel dao = _loadCache();
+    function createDaoAndInstallAgreement(string calldata _title, bytes calldata _content, address _arbitrator, address _stakingFactory) external {
+        (Kernel dao,) = _createDAO();
+
         Agreement agreement = _installAgreementApp(dao, _arbitrator, SET_APP_FEES_CASHIER, _title, _content, _stakingFactory);
-        _storeCache(agreement);
+        _storeCache(dao, agreement);
     }
 
     function installApps(
@@ -115,13 +113,9 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
         _agreement.activate(address(_voting), collateralToken, challengeDuration, actionCollateral, challengeCollateral);
     }
 
-    function _storeCache(Kernel _dao) internal {
+    function _storeCache(Kernel _dao, Agreement _agreement) internal {
         Cache storage c = cache[msg.sender];
         c.dao = address(_dao);
-    }
-
-    function _storeCache(Agreement _agreement) internal {
-        Cache storage c = cache[msg.sender];
         c.agreement = address(_agreement);
     }
 

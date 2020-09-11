@@ -11,16 +11,15 @@ module.exports = async function deploy(network) {
     ? (await Template.at(config.template))
     : (await Template.new(daoFactory, ens, miniMeFactory))
 
-  console.log(`Creating DAO with template ${template.address}...`)
 
   const DAOFactory = artifacts.require('DAOFactory')
-  const receipt = await template.createDAO(ant)
+
+  console.log(`Creating DAO with template ${template.address} and installing agreement...`)
+  const { agreement: { title, content }, arbitrator, stakingFactory } = config
+  const receipt = await template.createDaoAndInstallAgreement(title, content, arbitrator, stakingFactory)
+
   const dao = getEventArgument(receipt, 'DeployDAO', 'dao', { decodeForAbi: DAOFactory.abi })
   console.log(`DAO created at ${dao}`)
-
-  console.log('Installing agreement...')
-  const { agreement: { title, content }, arbitrator, stakingFactory } = config
-  await template.installAgreement(title, content, arbitrator, stakingFactory)
 
   console.log('Installing apps...')
   const { feeToken, disputableVoting1, disputableVoting2 } = config
