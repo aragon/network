@@ -50,7 +50,7 @@ const CONFIG = {
     arbitrator:     '0x52180af656a1923024d1accf1d827ab85ce48878',   // Aragon Court staging instance
     stakingFactory: '0x07429001eeA415E967C57B8d43484233d57F8b0B',   // Real StakingFactory instance on Rinkeby
     feeToken:       '0x3af6b2f907f0c55f279e0ed65751984e6cdc4a42',   // DAI mock token used in Aragon Court staging
-    template:       '0xd701e49Bf69229d01B78BF34b9F9c5b9759FE442',
+    template:       '0xDe7031b83E23aF2cA761BA2B7E6B500ed59b3A05',
   },
   mainnet: {
     ...DEFAULTS,

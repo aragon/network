@@ -4,7 +4,7 @@ const { votingParamsToArrays, CONFIG } = require('../config')
 
 module.exports = async function deploy(network) {
   const config = CONFIG[network]
-  const { ant, ens, daoFactory, miniMeFactory, token } = config
+  const { ant, ens, daoFactory, miniMeFactory } = config
 
   const Template = artifacts.require('ANDAOTemplate')
   const template = config.template
@@ -33,7 +33,7 @@ module.exports = async function deploy(network) {
   } = votingParamsToArrays(feeToken, disputableVoting2)
 
   await template.installApps(
-    token,
+    ant,
     votingSettings1,
     collateralRequirements1,
     votingSettings2,
