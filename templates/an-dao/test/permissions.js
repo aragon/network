@@ -1,6 +1,5 @@
 const encodeCall = require('@aragon/templates-shared/helpers/encodeCall')
 const { assertRole, assertMissingRole, assertRoleNotGranted } = require('@aragon/templates-shared/helpers/assertRole')(web3.utils)
-const { randomId } = require('@aragon/templates-shared/helpers/aragonId')
 const { getEventArgument } = require('@aragon/contract-helpers-test')
 const { ZERO_ADDRESS, EMPTY_BYTES } = require('@aragon/contract-helpers-test')
 const { ANY_ENTITY } = require('@aragon/contract-helpers-test/src/aragon-os')
@@ -28,7 +27,7 @@ const { votingParamsToArrays, CONFIG } = require('../config')
 contract('AN DAO, permissions', ([owner]) => {
   const config = CONFIG['development']
 
-  let daoID, token, template, dao, acl, evmScriptRegistry
+  let token, template, dao, acl, evmScriptRegistry
   let voting1, voting2, agent, agreement
 
   before('deploy apps, token and template', async () => {
@@ -63,7 +62,6 @@ contract('AN DAO, permissions', ([owner]) => {
   }
 
   before('create instance', async () => {
-    daoID = randomId()
     const stakingFactory = await StakingFactory.new()
     const daoAgreementReceipt = await template.createDaoAndInstallAgreement(config.agreement.title, config.agreement.content, token.address, stakingFactory.address) // token, so it’s a contract, no court in localhost network
     console.log('Gas tx 1', daoAgreementReceipt.receipt.gasUsed)
