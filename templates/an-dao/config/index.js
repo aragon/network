@@ -50,7 +50,7 @@ const CONFIG = {
     arbitrator:     '0x52180af656a1923024d1accf1d827ab85ce48878',   // Aragon Court staging instance
     stakingFactory: '0x07429001eeA415E967C57B8d43484233d57F8b0B',   // Real StakingFactory instance on Rinkeby
     feeToken:       '0x3af6b2f907f0c55f279e0ed65751984e6cdc4a42',   // DAI mock token used in Aragon Court staging
-    template:       '0x13347ed7970A8320fa8209ABD81560949d20b11c'
+    template:       '0xd701e49Bf69229d01B78BF34b9F9c5b9759FE442',
   },
   mainnet: {
     ...DEFAULTS,
@@ -61,7 +61,7 @@ const CONFIG = {
     arbitrator:     '0xee4650cBe7a2B23701D416f58b41D8B76b617797',   // Aragon Court mainnet instance
     stakingFactory: '0xD2f7D8A940324F12DFe623D5529b077E353314d3',
     feeToken:       '0x6b175474e89094c44da98b954eedeac495271d0f',   // DAI v2
-    template:       '0x27D354A866c96306c931733E9506A1e941E98bdd'
+    template:       undefined,
   }
 }
 
