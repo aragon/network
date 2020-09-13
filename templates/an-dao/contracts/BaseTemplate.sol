@@ -259,12 +259,10 @@ contract BaseTemplate is IsContract {
 
     function _installApp(Kernel _dao, bytes32 _appId, bytes memory _initializeData, bool _setDefault) internal returns (address) {
         address latestBaseAppAddress = _latestVersionAppBase(_appId);
-        emit LLB(latestBaseAppAddress, _dao.getApp(0xf1f3eb40f5bc1ad1344716ced8b8a0431d840b5783aea1fd01786bc26f35ac0f, _appId));
         address instance = address(_dao.newAppInstance(_appId, latestBaseAppAddress, _initializeData, _setDefault));
         emit InstalledApp(instance, _appId);
         return instance;
     }
-    event LLB(address l, address p);
 
     function _latestVersionAppBase(bytes32 _appId) internal view returns (address base) {
         Repo repo = Repo(PublicResolver(ens.resolver(_appId)).addr(_appId));
