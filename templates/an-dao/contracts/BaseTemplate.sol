@@ -211,12 +211,11 @@ contract BaseTemplate is IsContract {
     )
         internal returns (TokenManager)
     {
-        /*
         TokenManager tokenManager = TokenManager(_installNonDefaultApp(_dao, TOKEN_MANAGER_APP_ID));
-        _token.changeController(address(tokenManager));
+        address payable tokenManagerAddress = address(uint160(address(tokenManager)));
+        _token.changeController(tokenManagerAddress);
         tokenManager.initialize(_token, _transferable, _maxAccountTokens);
         return tokenManager;
-        */
     }
 
     function _createTokenManagerPermissions(ACL _acl, TokenManager _tokenManager, address _grantee, address _manager) internal {
