@@ -6,7 +6,7 @@ const HALF_HOUR = 60 * 30
 
 const CONFIG = {
   rinkeby: {
-    template:                 '0x3775D0AD11cE900101ff5E92277218241eAF3eFE',                       // AN DAO template
+    template:                 '0x815AD613c61561d850DA0311bfeAB77A5925e3e1',                       // AN DAO template
     agreement: {
       title:                  'Aragon Network DAO Agreement',
       content:                utf8ToHex('ipfs:QmdaYTJk6aV2pmVRx9EdV8kdDxD9yGFktd6hFskXSr4KDE'),   // AN DAO agreement proposal
