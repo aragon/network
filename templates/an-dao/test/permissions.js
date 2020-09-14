@@ -111,6 +111,11 @@ contract('AN DAO, permissions', ([owner]) => {
     await assertRole(acl, agent, voting2, 'RUN_SCRIPT_ROLE', voting1)
   })
 
+  it('should have correct Vault permissions for Agent', async () => {
+    const vault = await Vault.at(agent.address)
+    await assertRole(acl, vault, voting2, 'TRANSFER_ROLE', voting1)
+  })
+
   it('should have correct permissions for Voting 1', async () => {
     await assertRole(acl, voting1, voting2, 'CREATE_VOTES_ROLE', { address: ANY_ENTITY })
     await assertRole(acl, voting1, voting2, 'CHALLENGE_ROLE', { address: ANY_ENTITY })
