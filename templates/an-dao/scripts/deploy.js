@@ -16,7 +16,7 @@ module.exports = async function deploy(network) {
 
   console.log(`Creating DAO with template ${template.address} and installing agreement...`)
   const { agreement: { title, content }, arbitrator, stakingFactory } = config
-  const receipt = await template.createDaoAndInstallAgreement(title, content, arbitrator, stakingFactory)
+  const receipt = await template.createDaoAndInstallAgreement(ant, title, content, arbitrator, stakingFactory)
 
   const dao = getEventArgument(receipt, 'DeployDAO', 'dao', { decodeForAbi: DAOFactory.abi })
   console.log(`DAO created at ${dao}`)
@@ -33,7 +33,6 @@ module.exports = async function deploy(network) {
   } = votingParamsToArrays(feeToken, disputableVoting2)
 
   await template.installApps(
-    ant,
     votingSettings1,
     collateralRequirements1,
     votingSettings2,

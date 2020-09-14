@@ -9,6 +9,8 @@ import "./BaseTemplate.sol";
 
 import "./lib/os/ERC20.sol";
 
+import "@aragon/staking/interfaces/0.5-0.7/IStakingFactory.sol";
+import "@aragon/staking/interfaces/0.5-0.7/IStaking.sol";
 
 contract ANDAOTemplate is BaseTemplate, TokenCache {
     string constant private ERROR_MISSING_CACHE = "TEMPLATE_MISSING_TOKEN_CACHE";
@@ -20,6 +22,7 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
     struct Cache {
         address dao;
         address agreement;
+        address votingAggregator;
     }
 
     mapping (address => Cache) internal cache;
@@ -32,15 +35,22 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
     function () external {
     }
 
-    function createDaoAndInstallAgreement(string calldata _title, bytes calldata _content, address _arbitrator, address _stakingFactory) external {
-        (Kernel dao,) = _createDAO();
+    function createDaoAndInstallAgreement(MiniMeToken _votingToken, string calldata _title, bytes calldata _content, address _arbitrator, IStakingFactory _stakingFactory) external {
+        (Kernel dao, ACL acl) = _createDAO();
 
-        Agreement agreement = _installAgreementApp(dao, _arbitrator, SET_APP_FEES_CASHIER, _title, _content, _stakingFactory);
-        _storeCache(dao, agreement);
+        Agreement agreement = _installAgreementApp(dao, _arbitrator, SET_APP_FEES_CASHIER, _title, _content, address(_stakingFactory));
+        VotingAggregator votingAggregator = _installVotingAggregatorApp(dao, _votingToken);
+
+        // Add token as power source to Voting Aggregator
+        _createPermissionForTemplate(acl, address(votingAggregator), votingAggregator.ADD_POWER_SOURCE_ROLE());
+        votingAggregator.addPowerSource(address(_votingToken), VotingAggregator.PowerSourceType.ERC20WithCheckpointing, 1);
+        // Add staking as power source to Voting Aggregator
+        IStaking staking = _stakingFactory.getOrCreateInstance(address(_votingToken));
+        votingAggregator.addPowerSource(address(staking), VotingAggregator.PowerSourceType.ERC900, 1);
+        _storeCache(dao, agreement, votingAggregator);
     }
 
     function installApps(
-        MiniMeToken _votingToken,
         uint64[7] calldata _votingSettings1,
         uint256[4] calldata _collateralRequirements1,
         uint64[7] calldata _votingSettings2,
@@ -48,34 +58,40 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
     )
         external
     {
-        (Kernel dao, Agreement agreement) = _popCache();
+        (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) = _popCache();
         Agent agent = _installAgentApp(dao);
 
-        DisputableVoting voting1 = _installDisputableVotingApp(dao, _votingToken, _votingSettings1);
-        DisputableVoting voting2 = _installDisputableVotingApp(dao, _votingToken, _votingSettings2);
+        address payable aggregatorAddress = address(uint160(address(votingAggregator)));
+        DisputableVoting voting1 = _installDisputableVotingApp(dao, MiniMeToken(aggregatorAddress), _votingSettings1);
+        DisputableVoting voting2 = _installDisputableVotingApp(dao, MiniMeToken(aggregatorAddress), _votingSettings2);
 
         ACL acl = ACL(dao.acl());
 
-        _setupMainPermissions(acl, agreement, voting2);
+        _setupMainPermissions(acl, agreement, voting2, votingAggregator);
         _setupVoting1Permissions(acl, agent, voting1, voting2);
 
+        // Activate Disputable voting apps
         _activateDisputableVoting(acl, agreement, voting1, voting2, _collateralRequirements1);
         _activateDisputableVoting(acl, agreement, voting2, voting2, _collateralRequirements2);
 
+        // Remove permissions from template
         _transferPermissionFromTemplate(acl, address(agreement), address(voting2), agreement.MANAGE_DISPUTABLE_ROLE(), address(voting2));
+        _transferPermissionFromTemplate(acl, address(votingAggregator), address(voting2), votingAggregator.ADD_POWER_SOURCE_ROLE(), address(voting2));
         _transferRootPermissionsFromTemplateAndFinalizeDAO(dao, address(voting2), address(voting2));
     }
 
     function _setupMainPermissions(
         ACL _acl,
         Agreement _agreement,
-        DisputableVoting _voting
+        DisputableVoting _voting,
+        VotingAggregator _votingAggregator
     )
         internal
     {
         _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CREATE_VOTES_ROLE(), address(_voting));
         _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CHALLENGE_ROLE(), address(_voting));
         _createAgreementPermissions(_acl, _agreement, address(_voting), address(_voting));
+        _createVotingAggregatorPermissions(_acl, _votingAggregator, address(_voting), address(_voting));
         _createEvmScriptsRegistryPermissions(_acl, address(_voting), address(_voting));
         _createDisputableVotingPermissions(_acl, _voting, address(_voting), address(_voting));
     }
@@ -113,21 +129,24 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
         _agreement.activate(address(_voting), collateralToken, challengeDuration, actionCollateral, challengeCollateral);
     }
 
-    function _storeCache(Kernel _dao, Agreement _agreement) internal {
+    function _storeCache(Kernel _dao, Agreement _agreement, VotingAggregator _votingAggregator) internal {
         Cache storage c = cache[msg.sender];
         c.dao = address(_dao);
         c.agreement = address(_agreement);
+        c.votingAggregator = address(_votingAggregator);
     }
 
-    function _popCache() internal returns (Kernel dao, Agreement agreement) {
+    function _popCache() internal returns (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) {
         Cache storage c = cache[msg.sender];
         require(c.dao != address(0), ERROR_MISSING_CACHE);
 
         dao = Kernel(c.dao);
         agreement = Agreement(c.agreement);
+        votingAggregator = VotingAggregator(c.votingAggregator);
 
         delete c.dao;
         delete c.agreement;
+        delete c.votingAggregator;
     }
 
     function _loadCache() internal view returns (Kernel) {

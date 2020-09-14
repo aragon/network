@@ -8,6 +8,7 @@ import "./lib/apps/Agent.sol";
 import "./lib/apps/Vault.sol";
 import "./lib/apps/Agreement.sol";
 import "./lib/apps/DisputableVoting.sol";
+import "./lib/apps/VotingAggregator.sol";
 import "./lib/apps/Finance.sol";
 import "./lib/apps/TokenManager.sol";
 
@@ -36,10 +37,20 @@ contract BaseTemplate is IsContract {
     bytes32 constant internal TOKEN_MANAGER_APP_ID = 0x6b20a3010614eeebf2138ccec99f028a61c811b3b1a3343b6ff635985c75c91f;
     bytes32 constant internal VAULT_APP_ID = 0x7e852e0fcfce6551c13800f1e7476f982525c2b5277ba14b24339c68416336d1;
 
+    /*
+    // App ID for agreement.precedence-campaign.aragonpm.eth:
+    bytes32 constant private AGREEMENT_APP_ID = 0x15a969a0e134d745b604fb43f699bb5c146424792084c198d53050c4d08126d1;
+    // App ID for disputable-voting.precedence-campaign.aragonpm.eth:
+    bytes32 constant private DISPUTABLE_VOTING_APP_ID = 0x39aa9e500efe56efda203714d12c78959ecbf71223162614ab5b56eaba014145;
+    // App ID for voting-aggregator.hatch.aragonpm.eth
+    bytes32 constant private VOTING_AGGREGATOR_APP_ID = 0x818d8ea9df3dca764232c22548318a98f82f388b760b4b5abe80a4b40f9b2076;
+    */
     // App ID for agreement.aragonpm.eth:
     bytes32 constant private AGREEMENT_APP_ID = 0x0cabb91fff413ac707663d5d8000b9c6b8ba3cafe4c50c30005debf64e13e665;
     // App ID for disputable-voting.aragonpm.eth:
     bytes32 constant private DISPUTABLE_VOTING_APP_ID = 0x09cdc3e6887a0002b11992e954a40326a511a1750a2f5c69d17b8b660b0d337a;
+    // App ID for voting-aggregator.aragonpm.eth
+    bytes32 constant private VOTING_AGGREGATOR_APP_ID = 0x1ccd8033893dd34d6681897cca56b623b6498e79e57c2b1e489a3d6fc136cf1d;
 
     string constant private ERROR_ENS_NOT_CONTRACT = "TEMPLATE_ENS_NOT_CONTRACT";
     string constant private ERROR_DAO_FACTORY_NOT_CONTRACT = "TEMPLATE_DAO_FAC_NOT_CONTRACT";
@@ -134,7 +145,28 @@ contract BaseTemplate is IsContract {
 
     function _createAgreementPermissions(ACL _acl, Agreement _agreement, address _grantee, address _manager) internal {
         _acl.createPermission(_grantee, address(_agreement), _agreement.CHANGE_AGREEMENT_ROLE(), _manager);
-        _acl.createPermission(address(this), address(_agreement), _agreement.MANAGE_DISPUTABLE_ROLE(), address(this));
+        _createPermissionForTemplate(_acl, address(_agreement), _agreement.MANAGE_DISPUTABLE_ROLE());
+    }
+
+
+    /* VOTING AGGREGATOR */
+
+    function _installVotingAggregatorApp(
+        Kernel _dao,
+        MiniMeToken _votingToken
+    )
+        internal
+        returns (VotingAggregator)
+    {
+        bytes memory initializeData = abi.encodeWithSelector(VotingAggregator(0).initialize.selector, _votingToken.name(), _votingToken.symbol(), _votingToken.decimals());
+        VotingAggregator votingAggregator = VotingAggregator(_installNonDefaultApp(_dao, VOTING_AGGREGATOR_APP_ID, initializeData));
+
+        return votingAggregator;
+    }
+
+    function _createVotingAggregatorPermissions(ACL _acl, VotingAggregator _votingAggregator, address _grantee, address _manager) internal {
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_POWER_SOURCE_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_WEIGHTS_ROLE(), _manager);
     }
 
     /* AGENT */
