@@ -15,15 +15,15 @@ const CONFIG = {
     },
     voting: {
       duration:               HALF_HOUR,
-      support:                pct16(20),
-      minQuorum:              pct16(2),
+      support:                pct16(20),                                                          // 20.0 %
+      minQuorum:              bigExp(1, 14),                                                      // 0.01 %
       executionDelay:         MINUTE * 5,
       delegatedVotingPeriod:  MINUTE * 10,
       quietEndingPeriod:      MINUTE * 10,
       quietEndingExtension:   MINUTE * 5,
       actionCollateral:       bigExp(5, 18),
       challengeCollateral:    bigExp(10, 18),
-      challengeDuration:      MINUTE * 5,
+      challengeDuration:      MINUTE * 20,
       collateralToken:        '0x3af6b2f907f0c55f279e0ed65751984e6cdc4a42',                       // DAI mock token used in Aragon Court staging
       token:                  '0x245B220211b7D3C6dCB001Aa2C3bf48ac4CaA03E',                       // ANT mock token used in Aragon Court staging
     },
