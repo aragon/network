@@ -24,7 +24,7 @@ const DAO_FACTORY = '0x5d94e3e7aec542ab0f9129b9a7badeb5b3ca0f77'
 
 contract('AN DAO', ([owner]) => {
   let token, template, dao, acl, evmScriptRegistry
-  let voting1, voting2, agent, agreement, votingAggregator
+  let voting1, voting2, agent1, agent2, agreement, votingAggregator
 
   before('deploy apps, token and template', async () => {
     // Agreement, DisputableVoting and VotingAggregator are not in aragen yet, so we need to deploy it and publish it
@@ -65,8 +65,9 @@ contract('AN DAO', ([owner]) => {
     voting1 = await Voting.at(installedApps['disputable-voting'][0])
     voting2 = await Voting.at(installedApps['disputable-voting'][1])
 
-    assert.equal(installedApps.agent.length, 1, 'should have installed 1 agent app')
-    agent = await Agent.at(installedApps.agent[0])
+    assert.equal(installedApps.agent.length, 2, 'should have installed 2 agent apps')
+    agent1 = await Agent.at(installedApps.agent[0])
+    agent2 = await Agent.at(installedApps.agent[1])
   }
 
   describe('permissions', () => {
@@ -83,14 +84,24 @@ contract('AN DAO', ([owner]) => {
       await assertRole(acl, evmScriptRegistry, voting2, 'REGISTRY_ADD_EXECUTOR_ROLE', voting2)
     })
 
-    it('should have correct permissions for Agent', async () => {
-      await assertRole(acl, agent, voting2, 'EXECUTE_ROLE', voting1)
-      await assertRole(acl, agent, voting2, 'RUN_SCRIPT_ROLE', voting1)
+    it('should have correct permissions for Agent1', async () => {
+      await assertRole(acl, agent1, voting2, 'EXECUTE_ROLE', voting1)
+      await assertRole(acl, agent1, voting2, 'RUN_SCRIPT_ROLE', voting1)
     })
 
-    it('should have correct Vault permissions for Agent', async () => {
-      const vault = await Vault.at(agent.address)
+    it('should have correct Vault permissions for Agent1', async () => {
+      const vault = await Vault.at(agent1.address)
       await assertRole(acl, vault, voting2, 'TRANSFER_ROLE', voting1)
+    })
+
+    it('should have correct permissions for Agent2', async () => {
+      await assertRole(acl, agent2, voting2, 'EXECUTE_ROLE', voting2)
+      await assertRole(acl, agent2, voting2, 'RUN_SCRIPT_ROLE', voting2)
+    })
+
+    it('should have correct Vault permissions for Agent2', async () => {
+      const vault = await Vault.at(agent2.address)
+      await assertRole(acl, vault, voting2, 'TRANSFER_ROLE', voting2)
     })
 
     it('should have correct permissions for Voting 1', async () => {

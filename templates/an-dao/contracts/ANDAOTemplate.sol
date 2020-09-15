@@ -53,7 +53,8 @@ contract ANDAOTemplate is BaseTemplate {
         external
     {
         (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) = _popCache();
-        Agent agent = _installAgentApp(dao);
+        Agent agent1 = _installAgentApp(dao);
+        Agent agent2 = _installAgentApp(dao);
 
         address payable aggregatorAddress = address(uint160(address(votingAggregator)));
         DisputableVoting voting1 = _installDisputableVotingApp(dao, MiniMeToken(aggregatorAddress), _votingSettings1);
@@ -61,8 +62,8 @@ contract ANDAOTemplate is BaseTemplate {
 
         ACL acl = ACL(dao.acl());
 
-        _setupMainPermissions(acl, agreement, voting2, votingAggregator);
-        _setupVoting1Permissions(acl, agent, voting1, voting2);
+        _setupMainPermissions(acl, agent2, agreement, voting2, votingAggregator);
+        _setupVoting1Permissions(acl, agent1, voting1, voting2);
 
         // Activate Disputable voting apps
         _activateDisputableVoting(acl, agreement, voting1, voting2, _collateralRequirements1);
@@ -76,18 +77,25 @@ contract ANDAOTemplate is BaseTemplate {
 
     function _setupMainPermissions(
         ACL _acl,
+        Agent _agent,
         Agreement _agreement,
         DisputableVoting _voting,
         VotingAggregator _votingAggregator
     )
         internal
     {
+        // Agent
+        _createAgentPermissions(_acl, _agent, address(_voting), address(_voting));
+        _createVaultPermissions(_acl, Vault(address(_agent)), address(_voting), address(_voting));
+        // Agreement
+        _createAgreementPermissions(_acl, _agreement, address(_voting), address(_voting));
+        // Voting
         _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CREATE_VOTES_ROLE(), address(_voting));
         _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CHALLENGE_ROLE(), address(_voting));
-        _createAgreementPermissions(_acl, _agreement, address(_voting), address(_voting));
         _createVotingAggregatorPermissions(_acl, _votingAggregator, address(_voting), address(_voting));
-        _createEvmScriptsRegistryPermissions(_acl, address(_voting), address(_voting));
         _createDisputableVotingPermissions(_acl, _voting, address(_voting), address(_voting));
+        // EVM Script Registry
+        _createEvmScriptsRegistryPermissions(_acl, address(_voting), address(_voting));
     }
 
     function _setupVoting1Permissions(
