@@ -62,12 +62,12 @@ contract('AN DAO', ([owner]) => {
     votingAggregator = await VotingAggregator.at(installedAgreementApps['voting-aggregator'][0])
 
     assert.equal(installedApps['disputable-voting'].length, 2, 'should have installed 2 voting apps')
-    voting1 = await Voting.at(installedApps['disputable-voting'][0])
-    voting2 = await Voting.at(installedApps['disputable-voting'][1])
+    voting2 = await Voting.at(installedApps['disputable-voting'][0])
+    voting1 = await Voting.at(installedApps['disputable-voting'][1])
 
     assert.equal(installedApps.agent.length, 2, 'should have installed 2 agent apps')
-    agent1 = await Agent.at(installedApps.agent[0])
-    agent2 = await Agent.at(installedApps.agent[1])
+    agent2 = await Agent.at(installedApps.agent[0])
+    agent1 = await Agent.at(installedApps.agent[1])
   }
 
   describe('permissions', () => {

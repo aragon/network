@@ -53,26 +53,61 @@ contract ANDAOTemplate is BaseTemplate {
         external
     {
         (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) = _popCache();
-        Agent agent1 = _installAgentApp(dao);
-        Agent agent2 = _installAgentApp(dao);
 
         address payable aggregatorAddress = address(uint160(address(votingAggregator)));
-        DisputableVoting voting1 = _installDisputableVotingApp(dao, MiniMeToken(aggregatorAddress), _votingSettings1);
-        DisputableVoting voting2 = _installDisputableVotingApp(dao, MiniMeToken(aggregatorAddress), _votingSettings2);
 
         ACL acl = ACL(dao.acl());
 
-        _setupMainPermissions(acl, agent2, agreement, voting2, votingAggregator);
-        _setupVoting1Permissions(acl, agent1, voting1, voting2);
-
-        // Activate Disputable voting apps
-        _activateDisputableVoting(acl, agreement, voting1, voting2, _collateralRequirements1);
-        _activateDisputableVoting(acl, agreement, voting2, voting2, _collateralRequirements2);
+        DisputableVoting voting2 = _installApps2(dao, acl, votingAggregator, agreement, aggregatorAddress, _votingSettings2, _collateralRequirements2);
+        _installApps1(dao, acl, agreement, voting2, aggregatorAddress, _votingSettings1, _collateralRequirements1);
 
         // Remove permissions from template
         _transferPermissionFromTemplate(acl, address(agreement), address(voting2), agreement.MANAGE_DISPUTABLE_ROLE(), address(voting2));
         _transferPermissionFromTemplate(acl, address(votingAggregator), address(voting2), votingAggregator.ADD_POWER_SOURCE_ROLE(), address(voting2));
         _transferRootPermissionsFromTemplateAndFinalizeDAO(dao, address(voting2), address(voting2));
+    }
+
+    function _installApps2(
+        Kernel _dao,
+        ACL _acl,
+        VotingAggregator _votingAggregator,
+        Agreement _agreement,
+        address payable _aggregatorAddress,
+        uint64[7] memory _votingSettings2,
+        uint256[4] memory _collateralRequirements2
+    )
+        internal
+        returns (DisputableVoting)
+    {
+        Agent agent2 = _installAgentApp(_dao);
+        DisputableVoting voting2 = _installDisputableVotingApp(_dao, MiniMeToken(_aggregatorAddress), _votingSettings2);
+
+        _setupMainPermissions(_acl, agent2, _agreement, voting2, _votingAggregator);
+
+        // Activate Disputable voting app
+        _activateDisputableVoting(_acl, _agreement, voting2, voting2, _collateralRequirements2);
+
+        return voting2;
+    }
+
+    function _installApps1(
+        Kernel _dao,
+        ACL _acl,
+        Agreement _agreement,
+        DisputableVoting _voting2,
+        address payable _aggregatorAddress,
+        uint64[7] memory _votingSettings1,
+        uint256[4] memory _collateralRequirements1
+    )
+        internal
+    {
+        Agent agent1 = _installAgentApp(_dao);
+        DisputableVoting voting1 = _installDisputableVotingApp(_dao, MiniMeToken(_aggregatorAddress), _votingSettings1);
+
+        _setupVoting1Permissions(_acl, agent1, voting1, _voting2);
+
+        // Activate Disputable voting app
+        _activateDisputableVoting(_acl, _agreement, voting1, _voting2, _collateralRequirements1);
     }
 
     function _setupMainPermissions(
