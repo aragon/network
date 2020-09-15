@@ -99,39 +99,43 @@ Apps installed on the organization and their parameters.
 #### Permissions
 The permissions that will be set on each app are:
 
-|	App	| Permission/Action	| Grantee | Manager |
-| ------------- |:-------------:|:-------------:|:-------------:|
-| ACL |	Create permissions | Voting 2	| Voting 2 |
-| Agent 1 |	Execute action | Voting 1	| Voting 2 |
-|  |	Run EVM Script | Voting 1	| Voting 2 |
-|  |	Transfer Agent's tokens | Voting 1	| Voting 2 |
-| Agent 2 |	Execute action | Voting 2	| Voting 2 |
-|  |	Run EVM Script | Voting 2	| Voting 2 |
-|  |	Transfer Agent's tokens | Voting 2	| Voting 2 |
-| Agreement |	Change Agreement content | Voting 2	| Voting 2 |
-|  |	Manage disputable | Voting 2	| Voting 2 |
-| EVM Script Registry |	Add executors | Voting 2	| Voting 2 |
-|  |	Enable and disable executors | Voting 2	| Voting 2 |
-| Kernel |	Manage apps | Voting 2	| Voting 2 |
-| Voting Aggregator |	Add power source | Voting 2	| Voting 2 |
-| Voting Aggregator |	Manage power source | Voting 2	| Voting 2 |
-| Voting Aggregator |	Manage weights | Voting 2	| Voting 2 |
-| Voting 1 |	Challenge actions | `ANY_ENTITY`	| Voting 2 |
-|  |	Create votes | `ANY_ENTITY`	| Voting 2 |
-|  |	Manage quiet ending configuration | Voting 2	| Voting 2 |
-|  |	Modify execution delay | Voting 2	| Voting 2 |
-|  |	Modify overrule window | Voting 2	| Voting 2 |
-|  |	Modify quorum | Voting 2	| Voting 2 |
-|  |	Modify support | Voting 2	| Voting 2 |
-|  |	Set Agreement app | Agreement	| Voting 2 |
-| Voting 2 |	Challenge actions | `ANY_ENTITY`	| Voting 2 |
-|  |	Create votes | `ANY_ENTITY`	| Voting 2 |
-|  |	Manage quiet ending configuration | Voting 2	| Voting 2 |
-|  |	Modify execution delay | Voting 2	| Voting 2 |
-|  |	Modify overrule window | Voting 2	| Voting 2 |
-|  |	Modify quorum | Voting 2	| Voting 2 |
-|  |	Modify support | Voting 2	| Voting 2 |
-|  |	Set Agreement app | Agreement | Voting 2 |
+
+| App                 | Permission/Action                 | Grantee         | Manager         |
+| -------------       | :-------------:                   | :-------------: | :-------------: |
+| ACL                 | Create permissions                | Voting 2        | Voting 2        |
+| Agent 1             | Execute action                    | Voting 1        | Voting 2        |
+|                     | Run EVM Script                    | Voting 1        | Voting 2        |
+|                     | Transfer Agent's tokens           | Voting 1        | Voting 2        |
+| Agent 2             | Execute action                    | Voting 2        | Voting 2        |
+|                     | Run EVM Script                    | Voting 2        | Voting 2        |
+|                     | Transfer Agent's tokens           | Voting 2        | Voting 2        |
+| Agreement           | Change Agreement content          | Voting 2        | Voting 2        |
+|                     | Manage disputable                 | Voting 2        | Voting 2        |
+| EVM Script Registry | Add executors                     | Voting 2        | Voting 2        |
+|                     | Enable and disable executors      | Voting 2        | Voting 2        |
+| Kernel              | Manage apps                       | Voting 2        | Voting 2        |
+| Voting Aggregator   |	Add power source                  | Voting 2      	| Voting 2        |
+|                     |	Manage power source               | Voting 2      	| Voting 2        |
+|                     |	Manage weights                    | Voting 2      	| Voting 2        |
+| Voting 1            | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
+|                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
+|                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
+|                     | Modify execution delay            | Voting 2        | Voting 2        |
+|                     | Modify overrule window            | Voting 2        | Voting 2        |
+|                     | Modify quorum                     | Voting 2        | Voting 2        |
+|                     | Modify support                    | Voting 2        | Voting 2        |
+|                     | Change vote time                  | Voting 2        | Voting 2        |
+|                     | Set Agreement app                 | Agreement       | Voting 2        |
+| Voting 2            | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
+|                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
+|                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
+|                     | Modify execution delay            | Voting 2        | Voting 2        |
+|                     | Modify overrule window            | Voting 2        | Voting 2        |
+|                     | Modify quorum                     | Voting 2        | Voting 2        |
+|                     | Modify support                    | Voting 2        | Voting 2        |
+|                     | Change vote time                  | Voting 2        | Voting 2        |
+|                     | Set Agreement app                 | Agreement       | Voting 2        |
+
 
 ### Development needs
 Some of the Aragon apps that will be required for this initial configuration will need to either be updated with new changes or built from scratch. Those apps and the new changes needed are:
