@@ -27,17 +27,22 @@ yarn run help
 
 You should see an output including the following list of tasks at least:
 ```bash
-sign            	Sign the latest AN DAO agreement version
-create-poll     	Submit a poll to the AN DAO
-create-transfer 	Submit a token transfer to the AN DAO
-challenge       	Challenge an AN DAO proposal
-dispute         	Dispute an AN DAO proposal to Aragon Court
-settle          	Settle a challenged AN DAO proposal
-vote            	Vote on an AN DAO proposal
-delegate-vote   	Delegate vote on an AN DAO proposal
-execute-proposal	Execute an AN DAO proposal
-close-proposal  	Close an AN DAO proposal
-help            	Prints this message
+sign            	    Sign the latest AN DAO agreement version
+create-poll     	    Submit a poll to the AN DAO
+create-transfer 	    Submit a token transfer to the AN DAO
+change-agreement     	Change an Aragon Network agreement content
+change-court-settings	Change an Aragon Court module
+change-voting-support	Change an Aragon Network voting required support
+upgrade-app          	Upgrade an Aragon Network app
+challenge       	    Challenge an AN DAO proposal
+dispute         	    Dispute an AN DAO proposal to Aragon Court
+settle          	    Settle a challenged AN DAO proposal
+vote            	    Vote on an AN DAO proposal
+set-representative   	Allow a second address as a representative
+delegate-vote   	    Delegate vote on an AN DAO proposal
+execute-proposal	    Execute an AN DAO proposal
+close-proposal  	    Close an AN DAO proposal
+help            	    Prints this message
 ```
 
 To read more information about these tasks simply run:
