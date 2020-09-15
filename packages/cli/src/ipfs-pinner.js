@@ -1,21 +1,19 @@
 const fs = require('fs')
-const path = require('path')
 const { client, PinnerError } = require('@aragonone/ipfs-pinner-client')
 
 const ALREADY_UPLOADED_ERROR = 'File is already uploaded with cid '
 const IPFS_PINNER_ENDPOINT = 'https://ipfs-pinner.backend.aragon.org'
 
-async function ipfsUpload(disputePath, justification, sender) {
+async function ipfsUpload(path, sender) {
   let content
 
-  if (justification.endsWith('.md')) {
-    const justificationPath = path.join(process.cwd(), disputePath, justification)
-    if (!fs.existsSync(justificationPath)) throw Error(`Justification path "${justificationPath}" does not exist`)
-    console.log(`Uploading justification "${justification}" to IPFS...`)
-    content = justificationPath
+  if (path.endsWith('.md')) {
+    if (!fs.existsSync(path)) throw Error(`Path "${path}" does not exist`)
+    console.log(`Uploading file "${path}" to IPFS...`)
+    content = path
   } else {
-    console.log(`Uploading justification "${justification}" as plain text (only markdown is supported for IPFS evidence)...`)
-    content = justification
+    console.log(`Uploading file "${path}" as plain text (only markdown is supported for IPFS evidence)...`)
+    content = path
   }
 
   await client.setEndpoint(IPFS_PINNER_ENDPOINT)

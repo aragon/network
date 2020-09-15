@@ -1,8 +1,8 @@
 module.exports = {
   rinkeby: {
-    dao:        '0x51A41E43af0774565f0be5cEbC50C693CC19E4eE',
-    agent:      '0x0d1b08e44b62212efe753d32719e0f2f1979661a',
-    voting:     '0x0e835020497b2cd716369f8fc713fb7bd0a22dbf',
-    agreement:  '0x9c92dbd8a8e5903e2741202321073091109f26be',
+    dao:        '0xfa5bae0029f0c2acffcc71ada4249bd0eaafd1f4',
+    agent:      '0x1f13ebb6e9b1453347cfcfc22e423d143090da96',
+    voting:     '0x3dfcbe1adffbab700cf12adcd1294a7bca56324d',
+    agreement:  '0xf066ba66d9e054fb1666eeaacceed48e7696a8f2',
   }
 }
