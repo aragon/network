@@ -55,10 +55,15 @@ Apps installed on the organization and their parameters.
 
 - Permissions. Allows users to add/grant or remove permissions to members or entities, as needed. It represents the governance structure of the organization.
 
+- Voting Aggregator. Allows users to aggregate voting power over multiple sources.
+    - Parameterization:
+      - Token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
+      - Staking pool: TBD  
+
 - Disputable Voting 1. Used to start new votes and poll tokenholders about specific issues. This Voting app is parameterized for less risky types of proposals (compared to Voting 2: lower approval and support thresholds, shorter vote duration, lower collateral requirements, etc).
 
     - Parameterization:   
-      - Token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
+      - Token: Voting aggregator 
       - Support: 66.6666666666666666%  
       - Minimum approval: 0.25%  
       - Duration: 60 hours  
@@ -76,7 +81,7 @@ Apps installed on the organization and their parameters.
 - Disputable Voting 2. Used to start new votes and poll tokenholders about specific issues. This Voting app is parameterized for more risky types of proposals (compared to Voting 1: higher approval and support thresholds, longer vote duration, higher collateral requirements, etc).
 
     - Parameterization:  
-      - Token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
+      - Token: Voting aggregator
       - Support: 66.6666666666666666%  
       - Minimum approval: 10%  
       - Duration: 7 days  
@@ -108,7 +113,9 @@ The permissions that will be set on each app are:
 | EVM Script Registry |	Add executors | Voting 2	| Voting 2 |
 |  |	Enable and disable executors | Voting 2	| Voting 2 |
 | Kernel |	Manage apps | Voting 2	| Voting 2 |
-| Permissions |	- | -	| - |
+| Voting Aggregator |	Add power source | Voting 2	| Voting 2 |
+| Voting Aggregator |	Manage power source | Voting 2	| Voting 2 |
+| Voting Aggregator |	Manage weights | Voting 2	| Voting 2 |
 | Voting 1 |	Challenge actions | `ANY_ENTITY`	| Voting 2 |
 |  |	Create votes | `ANY_ENTITY`	| Voting 2 |
 |  |	Manage quiet ending configuration | Voting 2	| Voting 2 |
