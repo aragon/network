@@ -17,7 +17,7 @@ module.exports = {
     support:                bn('6'.repeat(18)),                             // 66.666...%
     minQuorum:              bigExp(25, 14),                                 // 0.25%
     executionDelay:         ONE_HOUR * 12,                                  // 12 hours
-    delegatedVotingPeriod:  ONE_DAY * 2,                                    // TODO
+    delegatedVotingPeriod:  ONE_HOUR * 36,                                  // 36 hours
     quietEndingPeriod:      ONE_HOUR * 12,                                  // 12 hours
     quietEndingExtension:   ONE_HOUR * 12,                                  // 12 hours
     actionCollateral:       bigExp(100, 18),                                // 100 ANT
@@ -30,7 +30,7 @@ module.exports = {
     support:                bn('6'.repeat(18)),                             // 66.666...%
     minQuorum:              pct16(10),                                      // 10 %
     executionDelay:         ONE_DAY,                                        // 1 day
-    delegatedVotingPeriod:  ONE_DAY * 2,                                    // TODO
+    delegatedVotingPeriod:  ONE_DAY * 5,                                    // 5 days
     quietEndingPeriod:      ONE_HOUR * 12,                                  // 12 hours
     quietEndingExtension:   ONE_HOUR * 12,                                  // 12 hours
     actionCollateral:       bigExp(10000, 18),                              // 10,000 ANT
