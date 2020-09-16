@@ -37,14 +37,6 @@ contract BaseTemplate is IsContract {
     bytes32 constant internal TOKEN_MANAGER_APP_ID = 0x6b20a3010614eeebf2138ccec99f028a61c811b3b1a3343b6ff635985c75c91f;
     bytes32 constant internal VAULT_APP_ID = 0x7e852e0fcfce6551c13800f1e7476f982525c2b5277ba14b24339c68416336d1;
 
-    /*
-    // App ID for agreement.precedence-campaign.aragonpm.eth:
-    bytes32 constant private AGREEMENT_APP_ID = 0x15a969a0e134d745b604fb43f699bb5c146424792084c198d53050c4d08126d1;
-    // App ID for disputable-voting.precedence-campaign.aragonpm.eth:
-    bytes32 constant private DISPUTABLE_VOTING_APP_ID = 0x39aa9e500efe56efda203714d12c78959ecbf71223162614ab5b56eaba014145;
-    // App ID for voting-aggregator.hatch.aragonpm.eth
-    bytes32 constant private VOTING_AGGREGATOR_APP_ID = 0x818d8ea9df3dca764232c22548318a98f82f388b760b4b5abe80a4b40f9b2076;
-    */
     // App ID for agreement.aragonpm.eth:
     bytes32 constant private AGREEMENT_APP_ID = 0x0cabb91fff413ac707663d5d8000b9c6b8ba3cafe4c50c30005debf64e13e665;
     // App ID for disputable-voting.aragonpm.eth:
@@ -54,30 +46,21 @@ contract BaseTemplate is IsContract {
 
     string constant private ERROR_ENS_NOT_CONTRACT = "TEMPLATE_ENS_NOT_CONTRACT";
     string constant private ERROR_DAO_FACTORY_NOT_CONTRACT = "TEMPLATE_DAO_FAC_NOT_CONTRACT";
-    string constant private ERROR_ARAGON_ID_NOT_PROVIDED = "TEMPLATE_ARAGON_ID_NOT_PROVIDED";
-    string constant private ERROR_ARAGON_ID_NOT_CONTRACT = "TEMPLATE_ARAGON_ID_NOT_CONTRACT";
-    string constant private ERROR_MINIME_FACTORY_NOT_PROVIDED = "TEMPLATE_MINIME_FAC_NOT_PROVIDED";
-    string constant private ERROR_MINIME_FACTORY_NOT_CONTRACT = "TEMPLATE_MINIME_FAC_NOT_CONTRACT";
-    string constant private ERROR_CANNOT_CAST_VALUE_TO_ADDRESS = "TEMPLATE_CANNOT_CAST_VALUE_TO_ADDRESS";
-    string constant private ERROR_INVALID_ID = "TEMPLATE_INVALID_ID";
 
     ENS internal ens;
     DAOFactory internal daoFactory;
-    MiniMeTokenFactory internal miniMeFactory;
 
     event DeployDao(address dao);
     event SetupDao(address dao);
     event DeployToken(address token);
     event InstalledApp(address appProxy, bytes32 appId);
 
-    constructor(DAOFactory _daoFactory, ENS _ens, MiniMeTokenFactory _miniMeFactory) public {
+    constructor(DAOFactory _daoFactory, ENS _ens) public {
         require(isContract(address(_ens)), ERROR_ENS_NOT_CONTRACT);
         require(isContract(address(_daoFactory)), ERROR_DAO_FACTORY_NOT_CONTRACT);
-        require(isContract(address(_miniMeFactory)), ERROR_MINIME_FACTORY_NOT_CONTRACT);
 
         ens = _ens;
         daoFactory = _daoFactory;
-        miniMeFactory = _miniMeFactory;
     }
 
     /**
@@ -212,55 +195,12 @@ contract BaseTemplate is IsContract {
     )
         internal
     {
-        // TODO: _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
+        // _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_SUPPORT_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUORUM_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_DELEGATED_VOTING_PERIOD_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUIET_ENDING_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_EXECUTION_DELAY_ROLE(), _manager);
-    }
-
-    /* FINANCE */
-
-    function _installFinanceApp(Kernel _dao, Vault _vault, uint64 _periodDuration) internal returns (Finance) {
-        bytes memory initializeData = abi.encodeWithSelector(Finance(0).initialize.selector, _vault, _periodDuration);
-        return Finance(_installNonDefaultApp(_dao, FINANCE_APP_ID, initializeData));
-    }
-
-    function _createFinancePermissions(ACL _acl, Finance _finance, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, address(_finance), _finance.EXECUTE_PAYMENTS_ROLE(), _manager);
-        _acl.createPermission(_grantee, address(_finance), _finance.MANAGE_PAYMENTS_ROLE(), _manager);
-        _acl.createPermission(_grantee, address(_finance), _finance.CREATE_PAYMENTS_ROLE(), _manager);
-    }
-
-    /* TOKEN MANAGER */
-
-    function _installTokenManagerApp(
-        Kernel _dao,
-        MiniMeToken _token,
-        bool _transferable,
-        uint256 _maxAccountTokens
-    )
-        internal returns (TokenManager)
-    {
-        TokenManager tokenManager = TokenManager(_installNonDefaultApp(_dao, TOKEN_MANAGER_APP_ID));
-        address payable tokenManagerAddress = address(uint160(address(tokenManager)));
-        _token.changeController(tokenManagerAddress);
-        tokenManager.initialize(_token, _transferable, _maxAccountTokens);
-        return tokenManager;
-    }
-
-    function _createTokenManagerPermissions(ACL _acl, TokenManager _tokenManager, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, address(_tokenManager), _tokenManager.MINT_ROLE(), _manager);
-        _acl.createPermission(_grantee, address(_tokenManager), _tokenManager.BURN_ROLE(), _manager);
-    }
-
-    function _mintTokens(ACL _acl, TokenManager _tokenManager, address[] memory _holders, uint256[] memory _stakes) internal {
-        _createPermissionForTemplate(_acl, address(_tokenManager), _tokenManager.MINT_ROLE());
-        for (uint256 i = 0; i < _holders.length; i++) {
-            _tokenManager.mint(_holders[i], _stakes[i]);
-        }
-        _removePermissionFromTemplate(_acl, address(_tokenManager), _tokenManager.MINT_ROLE());
     }
 
     /* EVM SCRIPTS */
@@ -299,14 +239,5 @@ contract BaseTemplate is IsContract {
     function _latestVersionAppBase(bytes32 _appId) internal view returns (address base) {
         Repo repo = Repo(PublicResolver(ens.resolver(_appId)).addr(_appId));
         (,base,) = repo.getLatest();
-    }
-
-    /* TOKEN */
-
-    function _createToken(string memory _name, string memory _symbol, uint8 _decimals) internal returns (MiniMeToken) {
-        require(address(miniMeFactory) != address(0), ERROR_MINIME_FACTORY_NOT_PROVIDED);
-        MiniMeToken token = miniMeFactory.createCloneToken(MiniMeToken(address(0)), 0, _name, _decimals, _symbol, true);
-        emit DeployToken(address(token));
-        return token;
     }
 }

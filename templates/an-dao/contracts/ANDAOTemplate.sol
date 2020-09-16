@@ -4,14 +4,12 @@
 
 pragma solidity 0.5.17;
 
-import "./TokenCache.sol";
 import "./BaseTemplate.sol";
-
 import "./lib/os/ERC20.sol";
 import "./lib/staking/IStakingFactory.sol";
 
 
-contract ANDAOTemplate is BaseTemplate, TokenCache {
+contract ANDAOTemplate is BaseTemplate {
     string constant private ERROR_MISSING_CACHE = "TEMPLATE_MISSING_TOKEN_CACHE";
     string constant private ERROR_BAD_VOTE_SETTINGS = "BAD_VOTE_SETTINGS";
     string constant private ERROR_BAD_COLLATERAL_REQUIREMENT_SETTINGS = "BAD_COL_REQ_SETTINGS";
@@ -26,8 +24,8 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
 
     mapping (address => Cache) internal cache;
 
-    constructor(DAOFactory _daoFactory, ENS _ens, MiniMeTokenFactory _miniMeFactory)
-        BaseTemplate(_daoFactory, _ens, _miniMeFactory)
+    constructor(DAOFactory _daoFactory, ENS _ens)
+        BaseTemplate(_daoFactory, _ens)
         public
     {}
 

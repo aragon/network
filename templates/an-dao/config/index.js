@@ -39,7 +39,6 @@ const CONFIG = {
     ...DEFAULTS,
     ens:            '0x5f6f7e8cc7346a11ca2def8f827b7a0b612c56a1',   // from aragen
     daoFactory:     '0x5d94e3e7aec542ab0f9129b9a7badeb5b3ca0f77',   // from aragen
-    minimeFactory:  '0xd526b7aba39cccf76422835e7fd5327b98ad73c9',   // from aragen
   },
   rinkeby: {
     ...DEFAULTS,

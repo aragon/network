@@ -19,8 +19,6 @@ const Agreement = artifacts.require('Agreement')
 const VotingAggregator = artifacts.require('VotingAggregator')
 const StakingFactory = artifacts.require('StakingFactory')
 const MiniMeToken = artifacts.require('MiniMeToken')
-const MiniMeTokenFactory = artifacts.require('MiniMeTokenFactory')
-const PublicResolver = artifacts.require('PublicResolver')
 const EVMScriptRegistry = artifacts.require('EVMScriptRegistry')
 
 const { votingParamsToArrays, CONFIG } = require('../config')
@@ -36,7 +34,7 @@ contract('AN DAO, permissions', ([owner]) => {
     await deployApps(owner, config.ens)
 
     token = await MiniMeToken.new(ZERO_ADDRESS, ZERO_ADDRESS, 0, 'Aragon Network Token', 18, 'ANT', true)
-    template = await ANDAOTemplate.new(config.daoFactory, config.ens, config.minimeFactory)
+    template = await ANDAOTemplate.new(config.daoFactory, config.ens)
   })
 
   const loadDAO = async (daoAgreementReceipt, appsReceipt) => {
