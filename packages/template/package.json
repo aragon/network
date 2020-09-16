@@ -19,6 +19,7 @@
     "deploy:dao:mainnet": "yarn deploy:dao --network mainnet"
   },
   "devDependencies": {
+    "@aragon/cli": "^7.1.6",
     "@aragon/contract-helpers-test": "^0.1.0",
     "@aragon/staking": "0.3.1",
     "@nomiclabs/buidler": "^1.4.3",
