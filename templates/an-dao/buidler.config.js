@@ -1,11 +1,15 @@
-const deployTemplate = require('./scripts/deploy')
+const deployDAO = require('./scripts/deploy-dao')
+const deployTemplate = require('./scripts/deploy-template')
 const { task, usePlugin } = require('@nomiclabs/buidler/config')
 
 usePlugin('@nomiclabs/buidler-truffle5')
 usePlugin("@nomiclabs/buidler-web3")
 
-task('deploy', 'Deploy AN DAO')
-  .setAction(async (params, bre) => await deployTemplate(bre.network.name))
+task('deploy-template', 'Deploy AN DAO template')
+  .setAction(async (_, { network }) => await deployTemplate(network.name))
+
+task('deploy-dao', 'Deploy AN DAO from template')
+  .setAction(async (_, { network }) => await deployDAO(network.name))
 
 const ETH_KEYS = process.env.ETH_KEYS
 

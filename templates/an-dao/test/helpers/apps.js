@@ -71,6 +71,7 @@ const _isPackageRegistered = async (ens, name) => {
 }
 
 module.exports = {
+  APP_IDS,
   deployApps,
   getInstalledAppsById,
 }

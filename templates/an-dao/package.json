@@ -1,6 +1,6 @@
 {
-  "name": "@aragon/an-dao-template",
-  "description": "AN DAO template for Aragon Court",
+  "name": "@aragon/network-template",
+  "description": "AN DAO template",
   "private": true,
   "version": "0.0.1",
   "author": "Aragon Association <legal@aragon.org>",
@@ -10,7 +10,12 @@
     "compile": "buidler compile --force",
     "compile:staking": "buidler compile --config buidler.config.staking.js",
     "test": "yarn compile:staking && ./scripts/test.sh",
-    "deploy": "buidler deploy"
+    "deploy:template": "buidler deploy-template",
+    "deploy:dao": "buidler deploy-dao",
+    "deploy:template:rinkeby": "yarn deploy:template --network rinkeby",
+    "deploy:dao:rinkeby": "yarn deploy:dao --network rinkeby",
+    "deploy:template:mainnet": "yarn deploy:template --network mainnet",
+    "deploy:dao:mainnet": "yarn deploy:dao --network mainnet"
   },
   "dependencies": {},
   "devDependencies": {

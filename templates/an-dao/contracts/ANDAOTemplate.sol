@@ -10,7 +10,7 @@ import "./lib/staking/IStakingFactory.sol";
 
 
 contract ANDAOTemplate is BaseTemplate {
-    string constant private ERROR_MISSING_CACHE = "TEMPLATE_MISSING_TOKEN_CACHE";
+    string constant private ERROR_MISSING_CACHE = "TEMPLATE_MISSING_CACHE";
     string constant private ERROR_BAD_VOTE_SETTINGS = "BAD_VOTE_SETTINGS";
     string constant private ERROR_BAD_COLLATERAL_REQUIREMENT_SETTINGS = "BAD_COL_REQ_SETTINGS";
 
@@ -24,13 +24,10 @@ contract ANDAOTemplate is BaseTemplate {
 
     mapping (address => Cache) internal cache;
 
-    constructor(DAOFactory _daoFactory, ENS _ens)
-        BaseTemplate(_daoFactory, _ens)
+    constructor(DAOFactory _daoFactory, ENS _ens, bytes32[3] memory _appIds)
+        BaseTemplate(_daoFactory, _ens, _appIds)
         public
     {}
-
-    function () external {
-    }
 
     function createDaoAndInstallAgreement(MiniMeToken _votingToken, string calldata _title, bytes calldata _content, address _arbitrator, IStakingFactory _stakingFactory) external {
         (Kernel dao, ACL acl) = _createDAO();

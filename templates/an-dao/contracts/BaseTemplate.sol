@@ -37,30 +37,29 @@ contract BaseTemplate is IsContract {
     bytes32 constant internal TOKEN_MANAGER_APP_ID = 0x6b20a3010614eeebf2138ccec99f028a61c811b3b1a3343b6ff635985c75c91f;
     bytes32 constant internal VAULT_APP_ID = 0x7e852e0fcfce6551c13800f1e7476f982525c2b5277ba14b24339c68416336d1;
 
-    // App ID for agreement.aragonpm.eth:
-    bytes32 constant private AGREEMENT_APP_ID = 0x0cabb91fff413ac707663d5d8000b9c6b8ba3cafe4c50c30005debf64e13e665;
-    // App ID for disputable-voting.aragonpm.eth:
-    bytes32 constant private DISPUTABLE_VOTING_APP_ID = 0x09cdc3e6887a0002b11992e954a40326a511a1750a2f5c69d17b8b660b0d337a;
-    // App ID for voting-aggregator.aragonpm.eth
-    bytes32 constant private VOTING_AGGREGATOR_APP_ID = 0x1ccd8033893dd34d6681897cca56b623b6498e79e57c2b1e489a3d6fc136cf1d;
-
     string constant private ERROR_ENS_NOT_CONTRACT = "TEMPLATE_ENS_NOT_CONTRACT";
     string constant private ERROR_DAO_FACTORY_NOT_CONTRACT = "TEMPLATE_DAO_FAC_NOT_CONTRACT";
 
-    ENS internal ens;
-    DAOFactory internal daoFactory;
+    ENS public ens;
+    DAOFactory public daoFactory;
+    bytes32 public agreementId;
+    bytes32 public disputableVotingId;
+    bytes32 public votingAggregatorId;
 
     event DeployDao(address dao);
     event SetupDao(address dao);
     event DeployToken(address token);
     event InstalledApp(address appProxy, bytes32 appId);
 
-    constructor(DAOFactory _daoFactory, ENS _ens) public {
+    constructor(DAOFactory _daoFactory, ENS _ens, bytes32[3] memory _appIds) public {
         require(isContract(address(_ens)), ERROR_ENS_NOT_CONTRACT);
         require(isContract(address(_daoFactory)), ERROR_DAO_FACTORY_NOT_CONTRACT);
 
         ens = _ens;
         daoFactory = _daoFactory;
+        agreementId = _appIds[0];
+        disputableVotingId = _appIds[1];
+        votingAggregatorId = _appIds[2];
     }
 
     /**
@@ -123,33 +122,12 @@ contract BaseTemplate is IsContract {
         returns (Agreement)
     {
         bytes memory initializeData = abi.encodeWithSelector(Agreement(0).initialize.selector, _arbitrator, _setAppFeesCashier, _title, _content, _stakingFactory);
-        return Agreement(_installNonDefaultApp(_dao, AGREEMENT_APP_ID, initializeData));
+        return Agreement(_installNonDefaultApp(_dao, agreementId, initializeData));
     }
 
     function _createAgreementPermissions(ACL _acl, Agreement _agreement, address _grantee, address _manager) internal {
         _acl.createPermission(_grantee, address(_agreement), _agreement.CHANGE_AGREEMENT_ROLE(), _manager);
         _createPermissionForTemplate(_acl, address(_agreement), _agreement.MANAGE_DISPUTABLE_ROLE());
-    }
-
-
-    /* VOTING AGGREGATOR */
-
-    function _installVotingAggregatorApp(
-        Kernel _dao,
-        MiniMeToken _votingToken
-    )
-        internal
-        returns (VotingAggregator)
-    {
-        bytes memory initializeData = abi.encodeWithSelector(VotingAggregator(0).initialize.selector, _votingToken.name(), _votingToken.symbol(), _votingToken.decimals());
-        VotingAggregator votingAggregator = VotingAggregator(_installNonDefaultApp(_dao, VOTING_AGGREGATOR_APP_ID, initializeData));
-
-        return votingAggregator;
-    }
-
-    function _createVotingAggregatorPermissions(ACL _acl, VotingAggregator _votingAggregator, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_POWER_SOURCE_ROLE(), _manager);
-        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_WEIGHTS_ROLE(), _manager);
     }
 
     /* AGENT */
@@ -184,7 +162,7 @@ contract BaseTemplate is IsContract {
         uint64 executionDelay = _votingSettings[6];
 
         bytes memory initializeData = abi.encodeWithSelector(DisputableVoting(0).initialize.selector, _token, duration, support, acceptance, delegatedVotingPeriod, quietEndingPeriod, quietEndingExtension, executionDelay);
-        return DisputableVoting(_installNonDefaultApp(_dao, DISPUTABLE_VOTING_APP_ID, initializeData));
+        return DisputableVoting(_installNonDefaultApp(_dao, disputableVotingId, initializeData));
     }
 
     function _createDisputableVotingPermissions(
@@ -201,6 +179,26 @@ contract BaseTemplate is IsContract {
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_DELEGATED_VOTING_PERIOD_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUIET_ENDING_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_EXECUTION_DELAY_ROLE(), _manager);
+    }
+
+    /* VOTING AGGREGATOR */
+
+    function _installVotingAggregatorApp(
+        Kernel _dao,
+        MiniMeToken _votingToken
+    )
+    internal
+    returns (VotingAggregator)
+    {
+        bytes memory initializeData = abi.encodeWithSelector(VotingAggregator(0).initialize.selector, _votingToken.name(), _votingToken.symbol(), _votingToken.decimals());
+        VotingAggregator votingAggregator = VotingAggregator(_installNonDefaultApp(_dao, votingAggregatorId, initializeData));
+
+        return votingAggregator;
+    }
+
+    function _createVotingAggregatorPermissions(ACL _acl, VotingAggregator _votingAggregator, address _grantee, address _manager) internal {
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_POWER_SOURCE_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_WEIGHTS_ROLE(), _manager);
     }
 
     /* EVM SCRIPTS */
