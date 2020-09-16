@@ -122,7 +122,7 @@ contract('AN DAO, permissions', ([owner]) => {
     await assertRole(acl, voting1, voting2, 'CHANGE_QUIET_ENDING_ROLE', voting2)
     await assertRole(acl, voting1, voting2, 'CHANGE_EXECUTION_DELAY_ROLE', voting2)
     await assertRole(acl, voting1, voting2, 'CHANGE_DELEGATED_VOTING_PERIOD_ROLE', voting2)
-    await assertMissingRole(acl, voting1, 'CHANGE_VOTE_TIME_ROLE')
+    await assertRole(acl, voting1, voting2, 'CHANGE_VOTE_TIME_ROLE')
     await assertRole(acl, voting1, voting2, 'SET_AGREEMENT_ROLE', agreement)
   })
 
@@ -134,7 +134,7 @@ contract('AN DAO, permissions', ([owner]) => {
     await assertRole(acl, voting2, voting2, 'CHANGE_QUIET_ENDING_ROLE', voting2)
     await assertRole(acl, voting2, voting2, 'CHANGE_EXECUTION_DELAY_ROLE', voting2)
     await assertRole(acl, voting2, voting2, 'CHANGE_DELEGATED_VOTING_PERIOD_ROLE', voting2)
-    await assertMissingRole(acl, voting2, 'CHANGE_VOTE_TIME_ROLE')
+    await assertRole(acl, voting2, voting2, 'CHANGE_VOTE_TIME_ROLE')
     await assertRole(acl, voting2, voting2, 'SET_AGREEMENT_ROLE', agreement)
   })
 

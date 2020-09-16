@@ -195,7 +195,7 @@ contract BaseTemplate is IsContract {
     )
         internal
     {
-        // _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_SUPPORT_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUORUM_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_DELEGATED_VOTING_PERIOD_ROLE(), _manager);
