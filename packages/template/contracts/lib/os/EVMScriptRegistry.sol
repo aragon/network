@@ -2,7 +2,8 @@
  * SPDX-License-Identifier:    MIT
  */
 
-pragma solidity 0.4.24;
+pragma solidity 0.5.17;
+
 
 interface EVMScriptRegistry {
     function REGISTRY_MANAGER_ROLE() external pure returns (bytes32);
