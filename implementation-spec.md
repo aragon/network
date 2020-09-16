@@ -27,7 +27,7 @@ Apps installed on the organization and their parameters.
 
 - Agent 1. Used to interact with Ethereum contracts on behalf of the organization the Agent is installed on.
 
-- Agent 2. Used to interact with Ethereum contracts on behalf of the organization the Agent is installed on. This Agent will be transferred, with the parameters and permission configuration specified in this document, from network.aragonid.eth to the new Aragon Network by the Governor Council after the Aragon Network adopts an Aragon Agreement.
+- Agent 2. Used to interact with Ethereum contracts on behalf of the organization the Agent is installed on.
 
 - Agreement. Establishes human-readable guidelines that actions and proposals in the organization must comply with. Actors and proposal authors could have collateral that they have staked slashed if their actions/proposals do not comply with the Agreement.
 
@@ -35,19 +35,25 @@ Apps installed on the organization and their parameters.
       - Arbitrator: `0xee4650cbe7a2b23701d416f58b41d8b76b617797`  
       - Staking pool: TBD  
       - Title: Aragon Network Agreement  
-      - Content: https://github.com/aragon/agreement/pull/1/files
+      - Content: https://github.com/aragon/agreement/pull/1/files    
+      - Ruling priority:  
+        - 1: Refuse to vote (hard-coded in Aragon Court)  
+        - 2: Block  
+        - 3: Allow  
 
     - Disputable Voting 1 parameterization:  
       - Challenge response duration: 24 hours  
       - Collateral token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
       - Action collateral: 100 ANT  
       - Challenge collateral: 100 ANT
+      - `Refuse to vote` outcome: Block
 
     - Disputable Voting 2 parameterization:  
       - Challenge response duration: 24 hours  
       - Collateral token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
       - Action collateral: 10,000 ANT  
       - Challenge collateral: 1,000 ANT
+      - `Refuse to vote` outcome: Block
 
 - EVM Script Registry. Enables the management of EVMScripts and EVMScript executors.
 
@@ -77,6 +83,7 @@ Apps installed on the organization and their parameters.
         - Collateral token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
         - Action collateral: 100 ANT  
         - Challenge collateral: 100 ANT
+        - `Refuse to vote` outcome: Block
 
 - Disputable Voting 2. Used to start new votes and poll tokenholders about specific issues. This Voting app is parameterized for more risky types of proposals (compared to Voting 1: higher approval and support thresholds, longer vote duration, higher collateral requirements, etc).
 
@@ -95,6 +102,7 @@ Apps installed on the organization and their parameters.
         - Collateral token: `0x960b236a07cf122663c4303350609a66a7b288c0`  
         - Action collateral: 10,000 ANT  
         - Challenge collateral: 1,000 ANT
+        - `Refuse to vote` outcome: Block
 
 #### Permissions
 The permissions that will be set on each app are:
