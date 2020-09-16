@@ -16,8 +16,8 @@ const DEFAULTS = {
     delegatedVotingPeriod:  ONE_DAY * 2, // TODO
     quietEndingPeriod:      ONE_HOUR * 12,
     quietEndingExtension:   ONE_HOUR * 12,
-    actionCollateral:       bn(100),
-    challengeCollateral:    bn(100),
+    actionCollateral:       bigExp(100, 18),
+    challengeCollateral:    bigExp(100, 18),
     challengeDuration:      ONE_DAY,
   },
   disputableVoting2: {
@@ -28,8 +28,8 @@ const DEFAULTS = {
     delegatedVotingPeriod:  ONE_DAY * 2, // TODO
     quietEndingPeriod:      ONE_HOUR * 12,
     quietEndingExtension:   ONE_HOUR * 12,
-    actionCollateral:       bn(10000),
-    challengeCollateral:    bn(1000),
+    actionCollateral:       bigExp(10000, 18),
+    challengeCollateral:    bigExp(1000, 18),
     challengeDuration:      ONE_DAY,
   },
 }
