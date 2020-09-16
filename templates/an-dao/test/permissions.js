@@ -1,12 +1,10 @@
-const encodeCall = require('@aragon/templates-shared/helpers/encodeCall')
-const { assertRole, assertMissingRole, assertRoleNotGranted } = require('@aragon/templates-shared/helpers/assertRole')(web3.utils)
-const { getEventArgument } = require('@aragon/contract-helpers-test')
-const { ZERO_ADDRESS, EMPTY_BYTES } = require('@aragon/contract-helpers-test')
 const { ANY_ENTITY } = require('@aragon/contract-helpers-test/src/aragon-os')
-
-const { getInstalledAppsById } = require('./helpers/apps')(artifacts)
+const { ZERO_ADDRESS, getEventArgument } = require('@aragon/contract-helpers-test')
+const { assertRole, assertMissingRole } = require('@aragon/contract-helpers-test/src/aragon-os/asserts')
 
 const { deployApps } = require('./helpers/deploy_apps')(artifacts)
+const { getInstalledAppsById } = require('./helpers/apps')(artifacts)
+
 
 const ANDAOTemplate  = artifacts.require('ANDAOTemplate')
 
