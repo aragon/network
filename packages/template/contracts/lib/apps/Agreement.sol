@@ -2,7 +2,7 @@
  * SPDX-License-Identifier:    MIT
  */
 
-pragma solidity 0.4.24;
+pragma solidity 0.5.17;
 
 import "../os/ERC20.sol";
 
@@ -10,12 +10,13 @@ import "../os/ERC20.sol";
 interface Agreement {
     function CHANGE_AGREEMENT_ROLE() external pure returns (bytes32);
     function MANAGE_DISPUTABLE_ROLE() external pure returns (bytes32);
+    function CHALLENGE_ROLE() external pure returns (bytes32);
 
     function initialize(
         address _arbitrator,
         bool _setAppFeesCashier,
-        string _title,
-        bytes _content,
+        string calldata _title,
+        bytes calldata _content,
         address _stakingFactory
     ) external;
 

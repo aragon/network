@@ -4,21 +4,31 @@
   "private": true,
   "version": "0.0.1",
   "author": "Aragon Association <legal@aragon.org>",
-  "license": "CC0 1.0 Universal",
+  "license": "MIT",
   "scripts": {
+    "lint": "solium --dir ./contracts",
     "console": "buidler console",
     "compile": "buidler compile --force",
+    "compile:staking": "buidler compile --config buidler.config.staking.js",
+    "test": "yarn compile:staking && ./scripts/test.sh",
     "deploy:template": "buidler deploy-template",
     "deploy:dao": "buidler deploy-dao",
     "deploy:template:rinkeby": "yarn deploy:template --network rinkeby",
-    "deploy:dao:rinkeby": "yarn deploy:dao --network rinkeby"
+    "deploy:dao:rinkeby": "yarn deploy:dao --network rinkeby",
+    "deploy:template:mainnet": "yarn deploy:template --network mainnet",
+    "deploy:dao:mainnet": "yarn deploy:dao --network mainnet"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@aragon/cli": "^7.1.6",
     "@aragon/contract-helpers-test": "^0.1.0",
+    "@aragon/staking": "0.3.1",
     "@nomiclabs/buidler": "^1.4.3",
     "@nomiclabs/buidler-ganache": "^1.3.3",
     "@nomiclabs/buidler-truffle5": "^1.3.4",
     "@nomiclabs/buidler-web3": "^1.3.4",
+    "eth-ens-namehash": "^2.0.8",
+    "ethers": "^5.0.8",
+    "solium": "^1.2.5",
     "web3": "^1.2.11"
   }
 }

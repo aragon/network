@@ -1,0 +1,24 @@
+name: contracts
+
+on: [push, pull_request]
+
+jobs:
+  Template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install
+        run: yarn install --frozen-lockfile
+        working-directory: packages/template
+      - name: Lint
+        run: yarn lint
+        working-directory: packages/template
+      - name: Test
+        run: yarn test
+        working-directory: packages/template
+env:
+  CI: true

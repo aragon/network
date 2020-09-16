@@ -2,17 +2,17 @@
  * SPDX-License-Identifier:    MIT
  */
 
-pragma solidity 0.4.24;
+pragma solidity 0.5.17;
 
 import "./lib/apps/Agent.sol";
 import "./lib/apps/Vault.sol";
 import "./lib/apps/Agreement.sol";
 import "./lib/apps/DisputableVoting.sol";
+import "./lib/apps/VotingAggregator.sol";
 import "./lib/apps/Finance.sol";
 import "./lib/apps/TokenManager.sol";
 
 import "./lib/minime/MiniMeToken.sol";
-import "./lib/minime/MiniMeTokenFactory.sol";
 
 import "./lib/apm/ENS.sol";
 import "./lib/apm/Repo.sol";
@@ -37,28 +37,29 @@ contract BaseTemplate is IsContract {
     bytes32 constant internal TOKEN_MANAGER_APP_ID = 0x6b20a3010614eeebf2138ccec99f028a61c811b3b1a3343b6ff635985c75c91f;
     bytes32 constant internal VAULT_APP_ID = 0x7e852e0fcfce6551c13800f1e7476f982525c2b5277ba14b24339c68416336d1;
 
-    // App ID for agreement.open.aragonpm.eth:
-    bytes32 constant private AGREEMENT_APP_ID = 0x34c62f3aec3073826f39c2c35e9a1297d9dbf3cc77472283106f09eee9cf47bf;
-    // App ID for disputable-voting.open.aragonpm.eth:
-    bytes32 constant private DISPUTABLE_VOTING_APP_ID = 0x705b5084c67966bb8e4640b28bab7a1e51e03d209d84e3a04d2a4f7415f93b34;
-
     string constant private ERROR_ENS_NOT_CONTRACT = "TEMPLATE_ENS_NOT_CONTRACT";
     string constant private ERROR_DAO_FACTORY_NOT_CONTRACT = "TEMPLATE_DAO_FAC_NOT_CONTRACT";
 
-    ENS internal ens;
-    DAOFactory internal daoFactory;
+    ENS public ens;
+    DAOFactory public daoFactory;
+    bytes32 public agreementId;
+    bytes32 public disputableVotingId;
+    bytes32 public votingAggregatorId;
 
     event DeployDao(address dao);
     event SetupDao(address dao);
     event DeployToken(address token);
     event InstalledApp(address appProxy, bytes32 appId);
 
-    constructor(DAOFactory _daoFactory, ENS _ens) public {
+    constructor(DAOFactory _daoFactory, ENS _ens, bytes32[3] memory _appIds) public {
         require(isContract(address(_ens)), ERROR_ENS_NOT_CONTRACT);
         require(isContract(address(_daoFactory)), ERROR_DAO_FACTORY_NOT_CONTRACT);
 
         ens = _ens;
         daoFactory = _daoFactory;
+        agreementId = _appIds[0];
+        disputableVotingId = _appIds[1];
+        votingAggregatorId = _appIds[2];
     }
 
     /**
@@ -68,10 +69,10 @@ contract BaseTemplate is IsContract {
     *      permissions to the end entity in control of the organization.
     */
     function _createDAO() internal returns (Kernel dao, ACL acl) {
-        dao = daoFactory.newDAO(this);
+        dao = daoFactory.newDAO(address(this));
         emit DeployDao(address(dao));
         acl = ACL(dao.acl());
-        _createPermissionForTemplate(acl, dao, dao.APP_MANAGER_ROLE());
+        _createPermissionForTemplate(acl, address(dao), dao.APP_MANAGER_ROLE());
     }
 
     /* ACL */
@@ -96,9 +97,9 @@ contract BaseTemplate is IsContract {
 
     function _transferRootPermissionsFromTemplateAndFinalizeDAO(Kernel _dao, address _to, address _manager) internal {
         ACL _acl = ACL(_dao.acl());
-        _transferPermissionFromTemplate(_acl, _dao, _to, _dao.APP_MANAGER_ROLE(), _manager);
-        _transferPermissionFromTemplate(_acl, _acl, _to, _acl.CREATE_PERMISSIONS_ROLE(), _manager);
-        emit SetupDao(_dao);
+        _transferPermissionFromTemplate(_acl, address(_dao), _to, _dao.APP_MANAGER_ROLE(), _manager);
+        _transferPermissionFromTemplate(_acl, address(_acl), _to, _acl.CREATE_PERMISSIONS_ROLE(), _manager);
+        emit SetupDao(address(_dao));
     }
 
     function _transferPermissionFromTemplate(ACL _acl, address _app, address _to, bytes32 _permission, address _manager) internal {
@@ -113,20 +114,27 @@ contract BaseTemplate is IsContract {
         Kernel _dao,
         address _arbitrator,
         bool _setAppFeesCashier,
-        string _title,
-        bytes _content,
+        string memory _title,
+        bytes memory _content,
         address _stakingFactory
     )
         internal
         returns (Agreement)
     {
-        bytes memory initializeData = abi.encodeWithSelector(Agreement(0).initialize.selector, _arbitrator, _setAppFeesCashier, _title, _content, _stakingFactory);
-        return Agreement(_installNonDefaultApp(_dao, AGREEMENT_APP_ID, initializeData));
+        bytes memory initializeData = abi.encodeWithSelector(
+            Agreement(0).initialize.selector,
+            _arbitrator,
+            _setAppFeesCashier,
+            _title,
+            _content,
+            _stakingFactory
+        );
+        return Agreement(_installNonDefaultApp(_dao, agreementId, initializeData));
     }
 
     function _createAgreementPermissions(ACL _acl, Agreement _agreement, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, _agreement, _agreement.CHANGE_AGREEMENT_ROLE(), _manager);
-        _acl.createPermission(address(this), _agreement, _agreement.MANAGE_DISPUTABLE_ROLE(), address(this));
+        _acl.createPermission(_grantee, address(_agreement), _agreement.CHANGE_AGREEMENT_ROLE(), _manager);
+        _createPermissionForTemplate(_acl, address(_agreement), _agreement.MANAGE_DISPUTABLE_ROLE());
     }
 
     /* AGENT */
@@ -141,12 +149,12 @@ contract BaseTemplate is IsContract {
     }
 
     function _createAgentPermissions(ACL _acl, Agent _agent, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, _agent, _agent.EXECUTE_ROLE(), _manager);
-        _acl.createPermission(_grantee, _agent, _agent.RUN_SCRIPT_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_agent), _agent.EXECUTE_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_agent), _agent.RUN_SCRIPT_ROLE(), _manager);
     }
 
     function _createVaultPermissions(ACL _acl, Vault _vault, address _grantee, address _manager) internal {
-        _acl.createPermission(_grantee, _vault, _vault.TRANSFER_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_vault), _vault.TRANSFER_ROLE(), _manager);
     }
 
     /* DISPUTABLE VOTING */
@@ -160,32 +168,52 @@ contract BaseTemplate is IsContract {
         uint64 quietEndingExtension = _votingSettings[5];
         uint64 executionDelay = _votingSettings[6];
 
-        bytes memory initializeData = abi.encodeWithSelector(DisputableVoting(0).initialize.selector, _token, duration, support, acceptance, delegatedVotingPeriod, quietEndingPeriod, quietEndingExtension, executionDelay);
-        return DisputableVoting(_installNonDefaultApp(_dao, DISPUTABLE_VOTING_APP_ID, initializeData));
+        bytes memory initializeData = abi.encodeWithSelector(
+            DisputableVoting(0).initialize.selector,
+            _token,
+            duration,
+            support,
+            acceptance,
+            delegatedVotingPeriod,
+            quietEndingPeriod,
+            quietEndingExtension,
+            executionDelay
+        );
+        return DisputableVoting(_installNonDefaultApp(_dao, disputableVotingId, initializeData));
     }
 
-    function _createDisputableVotingPermissions(
-        ACL _acl,
-        DisputableVoting _voting,
-        address _grantee,
-        address _manager
-    )
-        internal
-    {
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_SUPPORT_ROLE(), _manager);
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_QUORUM_ROLE(), _manager);
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_DELEGATED_VOTING_PERIOD_ROLE(), _manager);
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_QUIET_ENDING_ROLE(), _manager);
-        _acl.createPermission(_grantee, _voting, _voting.CHANGE_EXECUTION_DELAY_ROLE(), _manager);
+    function _createDisputableVotingPermissions(ACL _acl, DisputableVoting _voting, address _grantee, address _manager) internal {
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_SUPPORT_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUORUM_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_DELEGATED_VOTING_PERIOD_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUIET_ENDING_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_EXECUTION_DELAY_ROLE(), _manager);
+    }
+
+    /* VOTING AGGREGATOR */
+
+    function _installVotingAggregatorApp(Kernel _dao, MiniMeToken _votingToken) internal returns (VotingAggregator) {
+        bytes memory initializeData = abi.encodeWithSelector(
+            VotingAggregator(0).initialize.selector,
+            _votingToken.name(),
+            _votingToken.symbol(),
+            _votingToken.decimals()
+        );
+        return VotingAggregator(_installNonDefaultApp(_dao, votingAggregatorId, initializeData));
+    }
+
+    function _createVotingAggregatorPermissions(ACL _acl, VotingAggregator _votingAggregator, address _grantee, address _manager) internal {
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_POWER_SOURCE_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(_votingAggregator), _votingAggregator.MANAGE_WEIGHTS_ROLE(), _manager);
     }
 
     /* EVM SCRIPTS */
 
     function _createEvmScriptsRegistryPermissions(ACL _acl, address _grantee, address _manager) internal {
         EVMScriptRegistry registry = EVMScriptRegistry(_acl.getEVMScriptRegistry());
-        _acl.createPermission(_grantee, registry, registry.REGISTRY_MANAGER_ROLE(), _manager);
-        _acl.createPermission(_grantee, registry, registry.REGISTRY_ADD_EXECUTOR_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(registry), registry.REGISTRY_MANAGER_ROLE(), _manager);
+        _acl.createPermission(_grantee, address(registry), registry.REGISTRY_ADD_EXECUTOR_ROLE(), _manager);
     }
 
     /* APPS */
