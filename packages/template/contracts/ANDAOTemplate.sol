@@ -45,9 +45,10 @@ contract ANDAOTemplate is BaseTemplate {
         VotingAggregator votingAggregator = _installVotingAggregatorApp(dao, _votingToken);
 
         // Add voting token and staking as power sources to the Voting Aggregator
+        address token = address(_votingToken);
         _createPermissionForTemplate(acl, address(votingAggregator), votingAggregator.ADD_POWER_SOURCE_ROLE());
-        votingAggregator.addPowerSource(address(_votingToken), VotingAggregator.PowerSourceType.ERC20WithCheckpointing, VOTING_AGGREGATOR_WEIGHT);
-        address staking = _stakingFactory.getOrCreateInstance(address(_votingToken));
+        votingAggregator.addPowerSource(token, VotingAggregator.PowerSourceType.ERC20WithCheckpointing, VOTING_AGGREGATOR_WEIGHT);
+        address staking = _stakingFactory.getOrCreateInstance(token);
         votingAggregator.addPowerSource(staking, VotingAggregator.PowerSourceType.ERC900, VOTING_AGGREGATOR_WEIGHT);
 
         _storeCache(dao, agreement, votingAggregator);
@@ -62,16 +63,17 @@ contract ANDAOTemplate is BaseTemplate {
         external
     {
         (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) = _popCache();
-        address payable aggregatorAddress = address(uint160(address(votingAggregator)));
+        address payable aggregator = address(uint160(address(votingAggregator)));
 
         ACL acl = ACL(dao.acl());
-        DisputableVoting voting2 = _installApps2(dao, acl, votingAggregator, agreement, aggregatorAddress, _votingSettings2, _collateralRequirements2);
-        _installApps1(dao, acl, agreement, voting2, aggregatorAddress, _votingSettings1, _collateralRequirements1);
+        DisputableVoting voting2 = _installApps2(dao, acl, votingAggregator, agreement, aggregator, _votingSettings2, _collateralRequirements2);
+        _installApps1(dao, acl, agreement, voting2, aggregator, _votingSettings1, _collateralRequirements1);
 
         // Remove permissions from template
-        _transferPermissionFromTemplate(acl, address(agreement), address(voting2), agreement.MANAGE_DISPUTABLE_ROLE(), address(voting2));
-        _transferPermissionFromTemplate(acl, address(votingAggregator), address(voting2), votingAggregator.ADD_POWER_SOURCE_ROLE(), address(voting2));
-        _transferRootPermissionsFromTemplateAndFinalizeDAO(dao, address(voting2), address(voting2));
+        address manager = address(voting2);
+        _transferPermissionFromTemplate(acl, address(agreement), manager, agreement.MANAGE_DISPUTABLE_ROLE(), manager);
+        _transferPermissionFromTemplate(acl, address(votingAggregator), manager, votingAggregator.ADD_POWER_SOURCE_ROLE(), manager);
+        _transferRootPermissionsFromTemplateAndFinalizeDAO(dao, manager, manager);
     }
 
     function _installApps2(

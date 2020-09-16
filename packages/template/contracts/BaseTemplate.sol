@@ -121,7 +121,14 @@ contract BaseTemplate is IsContract {
         internal
         returns (Agreement)
     {
-        bytes memory initializeData = abi.encodeWithSelector(Agreement(0).initialize.selector, _arbitrator, _setAppFeesCashier, _title, _content, _stakingFactory);
+        bytes memory initializeData = abi.encodeWithSelector(
+            Agreement(0).initialize.selector,
+            _arbitrator,
+            _setAppFeesCashier,
+            _title,
+            _content,
+            _stakingFactory
+        );
         return Agreement(_installNonDefaultApp(_dao, agreementId, initializeData));
     }
 
@@ -161,18 +168,21 @@ contract BaseTemplate is IsContract {
         uint64 quietEndingExtension = _votingSettings[5];
         uint64 executionDelay = _votingSettings[6];
 
-        bytes memory initializeData = abi.encodeWithSelector(DisputableVoting(0).initialize.selector, _token, duration, support, acceptance, delegatedVotingPeriod, quietEndingPeriod, quietEndingExtension, executionDelay);
+        bytes memory initializeData = abi.encodeWithSelector(
+            DisputableVoting(0).initialize.selector,
+            _token,
+            duration,
+            support,
+            acceptance,
+            delegatedVotingPeriod,
+            quietEndingPeriod,
+            quietEndingExtension,
+            executionDelay
+        );
         return DisputableVoting(_installNonDefaultApp(_dao, disputableVotingId, initializeData));
     }
 
-    function _createDisputableVotingPermissions(
-        ACL _acl,
-        DisputableVoting _voting,
-        address _grantee,
-        address _manager
-    )
-        internal
-    {
+    function _createDisputableVotingPermissions(ACL _acl, DisputableVoting _voting, address _grantee, address _manager) internal {
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_VOTE_TIME_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_SUPPORT_ROLE(), _manager);
         _acl.createPermission(_grantee, address(_voting), _voting.CHANGE_QUORUM_ROLE(), _manager);
@@ -183,17 +193,14 @@ contract BaseTemplate is IsContract {
 
     /* VOTING AGGREGATOR */
 
-    function _installVotingAggregatorApp(
-        Kernel _dao,
-        MiniMeToken _votingToken
-    )
-    internal
-    returns (VotingAggregator)
-    {
-        bytes memory initializeData = abi.encodeWithSelector(VotingAggregator(0).initialize.selector, _votingToken.name(), _votingToken.symbol(), _votingToken.decimals());
-        VotingAggregator votingAggregator = VotingAggregator(_installNonDefaultApp(_dao, votingAggregatorId, initializeData));
-
-        return votingAggregator;
+    function _installVotingAggregatorApp(Kernel _dao, MiniMeToken _votingToken) internal returns (VotingAggregator) {
+        bytes memory initializeData = abi.encodeWithSelector(
+            VotingAggregator(0).initialize.selector,
+            _votingToken.name(),
+            _votingToken.symbol(),
+            _votingToken.decimals()
+        );
+        return VotingAggregator(_installNonDefaultApp(_dao, votingAggregatorId, initializeData));
     }
 
     function _createVotingAggregatorPermissions(ACL _acl, VotingAggregator _votingAggregator, address _grantee, address _manager) internal {
