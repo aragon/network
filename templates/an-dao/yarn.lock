@@ -126,11 +126,6 @@
   resolved "https://registry.yarnpkg.com/@aragon/ppf-contracts/-/ppf-contracts-1.2.0.tgz#d2339481fe21436f349eabf39ca1264aded702e8"
   integrity sha512-9U0v/GR2Q62psB8sWk3UCsiyxS4LDqAWOmJqVrRtncKph1reF4PnKSOgKsI1Gncyp9Dk9+ZTkIspGGpYSjApBg==
 
-"@aragon/staking@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@aragon/staking/-/staking-0.3.0.tgz#37f54b0a74e9e5d3b987c7b6358d61e283925e7f"
-  integrity sha512-13Bld7DAz8gtkQDIgnPwNOInlPTyefI7U8NQFCaAZTpjEQT1Gdg2tlhZ/mr3z4oPb4SE6cMEaavogMCwQmCwIg==
-
 "@aragon/templates-shared@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@aragon/templates-shared/-/templates-shared-1.0.1.tgz#0741eef04b6ad27c57557cebb151cb4a53fbbf7b"
