@@ -8,7 +8,8 @@
   "scripts": {
     "console": "buidler console",
     "compile": "buidler compile --force",
-    "test": "buidler test --network localhost",
+    "compile:staking": "buidler compile --config buidler.config.staking.js",
+    "test": "yarn compile:staking && ./scripts/test.sh",
     "deploy": "buidler deploy"
   },
   "dependencies": {},

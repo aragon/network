@@ -2,16 +2,22 @@
 
 Template to deploy the AN DAO, following [the specification](../../implementation-spec.md).
 
+# Set up
+
+Clone this repo and make sure it's working properly running:
+
+```
+cd packages/template
+yarn
+yarn test
+```
+
 # Deployments
 
 ## Rinkeby
 
-TODO
+TBD
 
 ## Mainnet
 
-TODO
-
-# Testing
-
-Open a new tab, run `aragon devchain --reset` and then here `yarn test`.
+TBD

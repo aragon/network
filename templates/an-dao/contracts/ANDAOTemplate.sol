@@ -8,9 +8,8 @@ import "./TokenCache.sol";
 import "./BaseTemplate.sol";
 
 import "./lib/os/ERC20.sol";
+import "./lib/staking/IStakingFactory.sol";
 
-import "@aragon/staking/interfaces/0.5-0.7/IStakingFactory.sol";
-import "@aragon/staking/interfaces/0.5-0.7/IStaking.sol";
 
 contract ANDAOTemplate is BaseTemplate, TokenCache {
     string constant private ERROR_MISSING_CACHE = "TEMPLATE_MISSING_TOKEN_CACHE";
@@ -45,8 +44,8 @@ contract ANDAOTemplate is BaseTemplate, TokenCache {
         _createPermissionForTemplate(acl, address(votingAggregator), votingAggregator.ADD_POWER_SOURCE_ROLE());
         votingAggregator.addPowerSource(address(_votingToken), VotingAggregator.PowerSourceType.ERC20WithCheckpointing, 1);
         // Add staking as power source to Voting Aggregator
-        IStaking staking = _stakingFactory.getOrCreateInstance(address(_votingToken));
-        votingAggregator.addPowerSource(address(staking), VotingAggregator.PowerSourceType.ERC900, 1);
+        address staking = _stakingFactory.getOrCreateInstance(address(_votingToken));
+        votingAggregator.addPowerSource(staking, VotingAggregator.PowerSourceType.ERC900, 1);
         _storeCache(dao, agreement, votingAggregator);
     }
 
