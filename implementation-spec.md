@@ -77,7 +77,7 @@ Apps installed on the organization and their parameters.
       - Quiet ending:  
         - Quiet ending period: 12 hours  
         - Duration extension: 12 hours  
-      - Execution delay: 12 hours  
+      - Enaction delay: 12 hours  
       - Registered for Agreements: Yes  
       - Disputable parameters:  
         - Challenge response duration: 24 hours  
@@ -97,7 +97,7 @@ Apps installed on the organization and their parameters.
       - Quiet ending:  
         - Quiet ending period: 12 hours  
         - Duration extension: 12 hours  
-      - Execution delay: 24 hours  
+      - Enaction delay: 24 hours  
       - Registered for Agreements: Yes  
       - Disputable parameters:  
         - Challenge response duration: 24 hours  
@@ -130,7 +130,7 @@ The permissions that will be set on each app are:
 | Voting 1            | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
 |                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
 |                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
-|                     | Modify execution delay            | Voting 2        | Voting 2        |
+|                     | Modify enaction delay             | Voting 2        | Voting 2        |
 |                     | Modify overrule window            | Voting 2        | Voting 2        |
 |                     | Modify quorum                     | Voting 2        | Voting 2        |
 |                     | Modify support                    | Voting 2        | Voting 2        |
@@ -139,7 +139,7 @@ The permissions that will be set on each app are:
 | Voting 2            | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
 |                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
 |                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
-|                     | Modify execution delay            | Voting 2        | Voting 2        |
+|                     | Modify enaction delay             | Voting 2        | Voting 2        |
 |                     | Modify overrule window            | Voting 2        | Voting 2        |
 |                     | Modify quorum                     | Voting 2        | Voting 2        |
 |                     | Modify support                    | Voting 2        | Voting 2        |
@@ -159,7 +159,7 @@ Some of the Aragon apps that will be required for this initial configuration wil
 
 - Voting
   - Disputable: proposals can be disputed (taken to Aragon Court) during the time between when a vote starts and when an approved proposal is executed.
-  - Delayed Execution: proposals cannot be executed until a specific amount of time has passed since approval.
+  - Delayed Enaction: proposals cannot be executed until a specific amount of time has passed since approval.
   - Rolling Snapshot Quiet Ending: If the outcome of a proposal is different at the end of the quiet ending period than it was at the beginning, the vote duration is extended for another specified period of time.
   - Simple Delegation: ANT holders can delegate their voting power to another Ethereum account while retaining transfer control of their tokens.
 
