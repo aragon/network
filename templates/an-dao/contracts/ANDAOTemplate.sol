@@ -15,6 +15,8 @@ contract ANDAOTemplate is BaseTemplate {
     string constant private ERROR_BAD_COLLATERAL_REQUIREMENT_SETTINGS = "BAD_COL_REQ_SETTINGS";
 
     bool constant private SET_APP_FEES_CASHIER = false;
+    uint256 constant private VOTING_AGGREGATOR_WEIGHT = 1;
+    address constant private ANY_ENTITY = address(-1);
 
     struct Cache {
         address dao;
@@ -29,18 +31,25 @@ contract ANDAOTemplate is BaseTemplate {
         public
     {}
 
-    function createDaoAndInstallAgreement(MiniMeToken _votingToken, string calldata _title, bytes calldata _content, address _arbitrator, IStakingFactory _stakingFactory) external {
+    function createDaoAndInstallAgreement(
+        MiniMeToken _votingToken,
+        string calldata _title,
+        bytes calldata _content,
+        address _arbitrator,
+        IStakingFactory _stakingFactory
+    )
+        external
+    {
         (Kernel dao, ACL acl) = _createDAO();
-
         Agreement agreement = _installAgreementApp(dao, _arbitrator, SET_APP_FEES_CASHIER, _title, _content, address(_stakingFactory));
         VotingAggregator votingAggregator = _installVotingAggregatorApp(dao, _votingToken);
 
-        // Add token as power source to Voting Aggregator
+        // Add voting token and staking as power sources to the Voting Aggregator
         _createPermissionForTemplate(acl, address(votingAggregator), votingAggregator.ADD_POWER_SOURCE_ROLE());
-        votingAggregator.addPowerSource(address(_votingToken), VotingAggregator.PowerSourceType.ERC20WithCheckpointing, 1);
-        // Add staking as power source to Voting Aggregator
+        votingAggregator.addPowerSource(address(_votingToken), VotingAggregator.PowerSourceType.ERC20WithCheckpointing, VOTING_AGGREGATOR_WEIGHT);
         address staking = _stakingFactory.getOrCreateInstance(address(_votingToken));
-        votingAggregator.addPowerSource(staking, VotingAggregator.PowerSourceType.ERC900, 1);
+        votingAggregator.addPowerSource(staking, VotingAggregator.PowerSourceType.ERC900, VOTING_AGGREGATOR_WEIGHT);
+
         _storeCache(dao, agreement, votingAggregator);
     }
 
@@ -53,11 +62,9 @@ contract ANDAOTemplate is BaseTemplate {
         external
     {
         (Kernel dao, Agreement agreement, VotingAggregator votingAggregator) = _popCache();
-
         address payable aggregatorAddress = address(uint160(address(votingAggregator)));
 
         ACL acl = ACL(dao.acl());
-
         DisputableVoting voting2 = _installApps2(dao, acl, votingAggregator, agreement, aggregatorAddress, _votingSettings2, _collateralRequirements2);
         _installApps1(dao, acl, agreement, voting2, aggregatorAddress, _votingSettings1, _collateralRequirements1);
 
@@ -82,11 +89,13 @@ contract ANDAOTemplate is BaseTemplate {
         Agent agent2 = _installAgentApp(_dao);
         DisputableVoting voting2 = _installDisputableVotingApp(_dao, MiniMeToken(_aggregatorAddress), _votingSettings2);
 
-        _setupMainPermissions(_acl, agent2, _agreement, voting2, _votingAggregator);
+        address votingAddress = address(voting2);
+        _createEvmScriptsRegistryPermissions(_acl, votingAddress, votingAddress);
+        _createAgreementPermissions(_acl, _agreement, votingAddress, votingAddress);
+        _createVotingAggregatorPermissions(_acl, _votingAggregator, votingAddress, votingAddress);
+        _setupVotingPermissions(_acl, agent2, voting2, votingAddress);
 
-        // Activate Disputable voting app
         _activateDisputableVoting(_acl, _agreement, voting2, voting2, _collateralRequirements2);
-
         return voting2;
     }
 
@@ -104,48 +113,16 @@ contract ANDAOTemplate is BaseTemplate {
         Agent agent1 = _installAgentApp(_dao);
         DisputableVoting voting1 = _installDisputableVotingApp(_dao, MiniMeToken(_aggregatorAddress), _votingSettings1);
 
-        _setupVoting1Permissions(_acl, agent1, voting1, _voting2);
-
-        // Activate Disputable voting app
+        _setupVotingPermissions(_acl, agent1, voting1, address(_voting2));
         _activateDisputableVoting(_acl, _agreement, voting1, _voting2, _collateralRequirements1);
     }
 
-    function _setupMainPermissions(
-        ACL _acl,
-        Agent _agent,
-        Agreement _agreement,
-        DisputableVoting _voting,
-        VotingAggregator _votingAggregator
-    )
-        internal
-    {
-        // Agent
-        _createAgentPermissions(_acl, _agent, address(_voting), address(_voting));
-        _createVaultPermissions(_acl, Vault(address(_agent)), address(_voting), address(_voting));
-        // Agreement
-        _createAgreementPermissions(_acl, _agreement, address(_voting), address(_voting));
-        // Voting
-        _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CREATE_VOTES_ROLE(), address(_voting));
-        _acl.createPermission(_acl.ANY_ENTITY(), address(_voting), _voting.CHALLENGE_ROLE(), address(_voting));
-        _createVotingAggregatorPermissions(_acl, _votingAggregator, address(_voting), address(_voting));
-        _createDisputableVotingPermissions(_acl, _voting, address(_voting), address(_voting));
-        // EVM Script Registry
-        _createEvmScriptsRegistryPermissions(_acl, address(_voting), address(_voting));
-    }
-
-    function _setupVoting1Permissions(
-        ACL _acl,
-        Agent _agent,
-        DisputableVoting _voting1,
-        DisputableVoting _voting2
-    )
-        internal
-    {
-        _acl.createPermission(_acl.ANY_ENTITY(), address(_voting1), _voting1.CREATE_VOTES_ROLE(), address(_voting2));
-        _acl.createPermission(_acl.ANY_ENTITY(), address(_voting1), _voting1.CHALLENGE_ROLE(), address(_voting2));
-        _createAgentPermissions(_acl, _agent, address(_voting1), address(_voting2));
-        _createVaultPermissions(_acl, Vault(address(_agent)), address(_voting1), address(_voting2));
-        _createDisputableVotingPermissions(_acl, _voting1, address(_voting2), address(_voting2));
+    function _setupVotingPermissions(ACL _acl, Agent _agent, DisputableVoting _voting, address _manager) internal {
+        _createAgentPermissions(_acl, _agent, address(_voting), _manager);
+        _createVaultPermissions(_acl, Vault(address(_agent)), address(_voting), _manager);
+        _createDisputableVotingPermissions(_acl, _voting, _manager, _manager);
+        _acl.createPermission(ANY_ENTITY, address(_voting), _voting.CREATE_VOTES_ROLE(), _manager);
+        _acl.createPermission(ANY_ENTITY, address(_voting), _voting.CHALLENGE_ROLE(), _manager);
     }
 
     function _activateDisputableVoting(

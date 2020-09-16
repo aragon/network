@@ -26,7 +26,7 @@ module.exports = {
     collateralToken:        '0x960b236A07cf122663c4303350609A66A7B288C0',   // ANT
   },
   disputableVoting2: {
-    duration:               ONE_DAY * 7,
+    duration:               ONE_DAY * 7,                                    // 7 days
     support:                bn('6'.repeat(18)),                             // 66.666...%
     minQuorum:              pct16(10),                                      // 10 %
     executionDelay:         ONE_DAY,                                        // 1 day
