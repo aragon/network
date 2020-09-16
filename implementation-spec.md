@@ -5,7 +5,7 @@ The Aragon Network is an internet-based jurisdiction that provides reliable disp
 
 Currently, the [Network](https://mainnet.aragon.org/#/network.aragonid.eth) is under the control of a [Governor Council](https://mainnet.aragon.org/#/network/0xda15e525b09266488c95c2742e849ca71683a0f5/) composed of [five voting members](https://blog.aragon.one/aragon-network-deploy/#governor-council) from the Aragon community. At some point in the future control of the Network and its assets will be transferred from the Governor Council to Aragon Network Token (ANT) holders.
 
-Before the transfer can be executed, ANT holders will have to come to a consensus about what the initial state of the Aragon Network organization should be when they assume control. This document describes one such possible organization configuration that could be adopted by ANT holders.
+Before the transfer can be enacted, ANT holders will have to come to a consensus about what the initial state of the Aragon Network organization should be when they assume control. This document describes one such possible organization configuration that could be adopted by ANT holders.
 
 ## Implementation overview
 The existing Network contract and app configuration is suitable for the Governor Council’s 3-of-5 governance model, but needs adjustment to accommodate the needs of an open organization governed by ANT holders. The Aragon Association proposes the following initial organization configuration for the ANT holder-governed Aragon Network:
@@ -158,8 +158,8 @@ Some of the Aragon apps that will be required for this initial configuration wil
     - Manage collateral
 
 - Voting
-  - Disputable: proposals can be disputed (taken to Aragon Court) during the time between when a vote starts and when an approved proposal is executed.
-  - Delayed Enaction: proposals cannot be executed until a specific amount of time has passed since approval.
+  - Disputable: proposals can be disputed (taken to Aragon Court) during the time between when a vote starts and when an approved proposal is enacted.
+  - Delayed Enaction: proposals cannot be enacted until a specific amount of time has passed since approval.
   - Rolling Snapshot Quiet Ending: If the outcome of a proposal is different at the end of the quiet ending period than it was at the beginning, the vote duration is extended for another specified period of time.
   - Simple Delegation: ANT holders can delegate their voting power to another Ethereum account while retaining transfer control of their tokens.
 
