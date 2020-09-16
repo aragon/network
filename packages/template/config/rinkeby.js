@@ -4,7 +4,7 @@ const { bn, bigExp } = require('@aragon/contract-helpers-test')
 const MINUTE = 60
 
 module.exports = {
-  template:                 '0xe611F8D0919408A5C3d3b10e46C2dc09F134cfdf',
+  template:                 '0xA34f4bEb2E524F4c039110d765a2c7F162CB5869',
   token:                    '0x245B220211b7D3C6dCB001Aa2C3bf48ac4CaA03E',                       // ANT mock token used in Aragon Court staging
   agreement: {
     title:                  'Aragon Network Agreement',
