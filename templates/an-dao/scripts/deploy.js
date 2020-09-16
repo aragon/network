@@ -25,11 +25,11 @@ module.exports = async function deploy(network) {
   const { feeToken, disputableVoting1, disputableVoting2 } = config
   const {
     votingSettingsArray: votingSettings1,
-    collatrealSettingsArray: collateralRequirements1
+    collateralSettingsArray: collateralRequirements1
   } = votingParamsToArrays(feeToken, disputableVoting1)
   const {
     votingSettingsArray: votingSettings2,
-    collatrealSettingsArray: collateralRequirements2
+    collateralSettingsArray: collateralRequirements2
   } = votingParamsToArrays(feeToken, disputableVoting2)
 
   await template.installApps(

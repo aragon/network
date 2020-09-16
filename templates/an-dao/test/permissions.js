@@ -1,13 +1,12 @@
 const { ANY_ENTITY } = require('@aragon/contract-helpers-test/src/aragon-os')
+const { injectArtifacts } = require('@aragon/contract-helpers-test/src/config')
 const { ZERO_ADDRESS, getEventArgument } = require('@aragon/contract-helpers-test')
 const { assertRole, assertMissingRole } = require('@aragon/contract-helpers-test/src/aragon-os/asserts')
 
-const { deployApps } = require('./helpers/deploy_apps')(artifacts)
-const { getInstalledAppsById } = require('./helpers/apps')(artifacts)
-
+const { votingParamsToArrays, CONFIG } = require('../config')
+const { getInstalledAppsById, deployApps } = require('./helpers/apps')
 
 const ANDAOTemplate  = artifacts.require('ANDAOTemplate')
-
 const ACL = artifacts.require('ACL')
 const Kernel = artifacts.require('Kernel')
 const Agent = artifacts.require('Agent')
@@ -19,11 +18,11 @@ const StakingFactory = artifacts.require('StakingFactory')
 const MiniMeToken = artifacts.require('MiniMeToken')
 const EVMScriptRegistry = artifacts.require('EVMScriptRegistry')
 
-const { votingParamsToArrays, CONFIG } = require('../config')
+injectArtifacts(artifacts)
+const config = CONFIG['development']
+
 
 contract('AN DAO, permissions', ([owner]) => {
-  const config = CONFIG['development']
-
   let token, template, dao, acl, evmScriptRegistry
   let voting1, voting2, agent, agreement, votingAggregator
 
@@ -63,19 +62,12 @@ contract('AN DAO, permissions', ([owner]) => {
 
   before('create instance', async () => {
     const stakingFactory = await StakingFactory.new()
-    const s = await stakingFactory.getOrCreateInstance(token.address)
     const daoAgreementReceipt = await template.createDaoAndInstallAgreement(token.address, config.agreement.title, config.agreement.content, token.address, stakingFactory.address) // token, so it’s a contract, no court in localhost network
     console.log('Gas tx 1', daoAgreementReceipt.receipt.gasUsed)
 
     const { disputableVoting1, disputableVoting2 } = config
-    const {
-      votingSettingsArray: votingSettings1,
-      collatrealSettingsArray: collateralRequirements1
-    } = votingParamsToArrays(token.address, disputableVoting1)
-    const {
-      votingSettingsArray: votingSettings2,
-      collatrealSettingsArray: collateralRequirements2
-    } = votingParamsToArrays(token.address, disputableVoting2)
+    const { votingSettingsArray: votingSettings1, collateralSettingsArray: collateralRequirements1 } = votingParamsToArrays(token.address, disputableVoting1)
+    const { votingSettingsArray: votingSettings2, collateralSettingsArray: collateralRequirements2 } = votingParamsToArrays(token.address, disputableVoting2)
     const appsReceipt = await template.installApps(votingSettings1, collateralRequirements1, votingSettings2, collateralRequirements2)
     console.log('Gas tx 2', appsReceipt.receipt.gasUsed)
 
