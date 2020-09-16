@@ -73,6 +73,7 @@ Apps installed on the organization and their parameters.
       - Support: 66.6666666666666666%  
       - Minimum approval: 0.25%  
       - Duration: 60 hours  
+      - Delegated voting period: 36 hours
       - Quiet ending:  
         - Quiet ending period: 12 hours  
         - Duration extension: 12 hours  
@@ -92,6 +93,7 @@ Apps installed on the organization and their parameters.
       - Support: 66.6666666666666666%  
       - Minimum approval: 10%  
       - Duration: 7 days  
+      - Delegated voting period: 5 days  
       - Quiet ending:  
         - Quiet ending period: 12 hours  
         - Duration extension: 12 hours  
