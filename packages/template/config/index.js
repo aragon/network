@@ -17,7 +17,7 @@ const parseVotingConfig = voting => {
   } = voting
 
   voting.votingSettings = [duration, support, minQuorum, delegatedVotingPeriod, quietEndingPeriod, quietEndingExtension, executionDelay]
-  voting.collateralSettings = [collateralToken, actionCollateral, challengeCollateral, challengeDuration]
+  voting.collateralSettings = [collateralToken, challengeDuration, actionCollateral, challengeCollateral]
   return voting
 }
 
