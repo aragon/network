@@ -109,41 +109,41 @@ Apps installed on the organization and their parameters.
 #### Permissions
 The permissions that will be set on each app are:  
 
-| App                 | Permission/Action                 | Grantee         | Manager         |
-| -------------       | :-------------:                   | :-------------: | :-------------: |
-| ACL                 | Create permissions                | Voting 2        | Voting 2        |
-| Agent 1             | Execute action                    | Voting 1        | Voting 2        |
-|                     | Run EVM Script                    | Voting 1        | Voting 2        |
-|                     | Transfer Agent's tokens           | Voting 1        | Voting 2        |
-| Agent 2             | Execute action                    | Voting 2        | Voting 2        |
-|                     | Run EVM Script                    | Voting 2        | Voting 2        |
-|                     | Transfer Agent's tokens           | Voting 2        | Voting 2        |
-| Agreement           | Change Agreement content          | Voting 2        | Voting 2        |
-|                     | Manage disputable                 | Voting 2        | Voting 2        |
-| Disputable Voting 1 | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
-|                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
-|                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
-|                     | Modify enaction delay             | Voting 2        | Voting 2        |
-|                     | Modify overrule window            | Voting 2        | Voting 2        |
-|                     | Modify quorum                     | Voting 2        | Voting 2        |
-|                     | Modify support                    | Voting 2        | Voting 2        |
-|                     | Change vote time                  | Voting 2        | Voting 2        |
-|                     | Set Agreement app                 | Agreement       | Voting 2        |
-| Disputable Voting 2 | Challenge actions                 | `ANY_ENTITY`    | Voting 2        |
-|                     | Create votes                      | `ANY_ENTITY`    | Voting 2        |
-|                     | Manage quiet ending configuration | Voting 2        | Voting 2        |
-|                     | Modify enaction delay             | Voting 2        | Voting 2        |
-|                     | Modify overrule window            | Voting 2        | Voting 2        |
-|                     | Modify quorum                     | Voting 2        | Voting 2        |
-|                     | Modify support                    | Voting 2        | Voting 2        |
-|                     | Change vote time                  | Voting 2        | Voting 2        |
-|                     | Set Agreement app                 | Agreement       | Voting 2        |
-| EVM Script Registry | Add executors                     | Voting 2        | Voting 2        |
-|                     | Enable and disable executors      | Voting 2        | Voting 2        |
-| Kernel              | Manage apps                       | Voting 2        | Voting 2        |
-| Voting Aggregator   |	Add power source                  | Voting 2      	| Voting 2        |
-|                     |	Manage power source               | Voting 2      	| Voting 2        |
-|                     |	Manage weights                    | Voting 2      	| Voting 2        |
+| App                 | Permission/Action                 | Grantee             | Manager             |
+| --------------------| :--------------------------------:| :------------------:| :------------------:|
+| ACL                 | Create permissions                | Disputable Voting 2 | Disputable Voting 2 |
+| Agent 1             | Execute action                    | Disputable Voting 1 | Disputable Voting 2 |
+|                     | Run EVM Script                    | Disputable Voting 1 | Disputable Voting 2 |
+|                     | Transfer Agent's tokens           | Disputable Voting 1 | Disputable Voting 2 |
+| Agent 2             | Execute action                    | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Run EVM Script                    | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Transfer Agent's tokens           | Disputable Voting 2 | Disputable Voting 2 |
+| Agreement           | Change Agreement content          | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Manage disputable                 | Disputable Voting 2 | Disputable Voting 2 |
+| Disputable Voting 1 | Challenge actions                 | `ANY_ENTITY`        | Disputable Voting 2 |
+|                     | Create votes                      | `ANY_ENTITY`        | Disputable Voting 2 |
+|                     | Manage quiet ending configuration | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify enaction delay             | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify overrule window            | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify quorum                     | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify support                    | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Change vote time                  | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Set Agreement app                 | Agreement           | Disputable Voting 2 |
+| Disputable Voting 2 | Challenge actions                 | `ANY_ENTITY`        | Disputable Voting 2 |
+|                     | Create votes                      | `ANY_ENTITY`        | Disputable Voting 2 |
+|                     | Manage quiet ending configuration | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify enaction delay             | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify overrule window            | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify quorum                     | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Modify support                    | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Change vote time                  | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Set Agreement app                 | Agreement           | Disputable Voting 2 |
+| EVM Script Registry | Add executors                     | Disputable Voting 2 | Disputable Voting 2 |
+|                     | Enable and disable executors      | Disputable Voting 2 | Disputable Voting 2 |
+| Kernel              | Manage apps                       | Disputable Voting 2 | Disputable Voting 2 |
+| Voting Aggregator   |	Add power source                  | Disputable Voting 2 | Disputable Voting 2 |
+|                     |	Manage power source               | Disputable Voting 2 | Disputable Voting 2 |
+|                     |	Manage weights                    | Disputable Voting 2 | Disputable Voting 2 |
 
 ### Development needs
 Some of the Aragon apps that will be required for this initial configuration will need to either be updated with new changes or built from scratch. Those apps and the new changes needed are:
@@ -174,7 +174,8 @@ While out of scope for the initial Aragon Network configuration, potential chang
 - Controlling the ANT contract: The Network will take over governance of the modifiable parameters of the ANT contract (currently controlled by the Aragon Community Multisig).
 - Controlling certain aragonPM repos: The Network will take over governance of certain aragonPM repos hosting critical infrastructure for the Aragon Network (currently controlled by Aragon One).
 - Controlling certain ENS names: The Network will take over governance of certain ENS names (currently controlled by the Aragon Association).
+- Conviction voting: Proposals will earn "conviction" weighted by token weight and time, introducing changes gradually and on a rolling basis rather than using the time-boxed voting method implemented by the Disputable Voting app.
 - Locked voting: ANT holders will have to lock their ANT for a specified period of time to be eligible to vote on proposals.
 - Voting rewards: ANT holders who participate in Network votes will be financially compensated for their efforts. Rewards could be determined by a specific participation rate target and adjusted upward or downward until the target is met.
 - Secret ballot: In the current implementation, votes are publicly linked to voter addresses during and after the vote. The Network could adopt secret ballot technology to protect voter privacy and protect against collusion and bribery.
-- Court Governor: This app provides granular control over the governance parameters of Aragon Court contracts and their modifiable parameters. For example, updating the “Modify Final round fees reduction percentage” setting would require the use of Voting 2 while updating the “Juror fee” setting would require the use of Voting 1.
+- Court Governor: This app provides granular control over the governance parameters of Aragon Court contracts and their modifiable parameters. For example, updating the “Modify Final round fees reduction percentage” setting would require the use of Disputable Voting 2 while updating the “Juror fee” setting would require the use of Disputable Voting 1.
