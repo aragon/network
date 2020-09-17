@@ -30,6 +30,12 @@ task('upgrade-app', 'Upgrade an Aragon Network app')
   .addParam('from', 'Address submitting the proposal')
   .setAction(({ id, base, justification, from }, bre) => callANDAO(bre, 'upgradeApp', [id, base, justification, from]))
 
+task('change-governor', 'Change an Aragon Court governor')
+  .addParam('governor', 'New governor address')
+  .addParam('justification', 'Justification: local path to markdown file, IPFS CID, or plain text')
+  .addParam('from', 'Address submitting the proposal')
+  .setAction(({ governor, justification, from }, bre) => callANDAO(bre, 'changeGovernor', [governor, justification, from]))
+
 task('change-agreement', 'Change an Aragon Network agreement content')
   .addParam('content', 'New agreement content to be proposed (IPFS link as "ipfs:[CID]")')
   .addParam('justification', 'Justification: local path to markdown file, IPFS CID, or plain text')

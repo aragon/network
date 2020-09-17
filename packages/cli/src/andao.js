@@ -6,7 +6,7 @@ const { bn, getEventArgument, MAX_UINT192, ZERO_ADDRESS, EMPTY_BYTES } = require
 
 const config = require('../andao.config')
 const { ipfsUpload } = require('./ipfs-pinner')
-const { encodeTokenTransfer, encodeAppUpgrade, encodeAgreementChange, encodeVotingSupportChange, encodeCourtConfigChange } = require('./encoder')
+const { encodeTokenTransfer, encodeAppUpgrade, encodeGovernorChange, encodeAgreementChange, encodeVotingSupportChange, encodeCourtConfigChange } = require('./encoder')
 
 module.exports = class ANDAO {
   constructor (network) {
@@ -160,6 +160,14 @@ module.exports = class ANDAO {
     console.log('Creating a proposal to change the voting required support...')
     const voting = await this.voting()
     const script = encodeVotingSupportChange(voting.address, support)
+    return this.newVote(script, justification, submitter)
+  }
+
+  async changeGovernor(governor, justification, submitter) {
+    console.log('Creating a proposal to change Aragon Court governor...')
+    const agent = await this.agent()
+    const { arbitrator } = await this.setting()
+    const script = encodeGovernorChange(agent.address, arbitrator, governor)
     return this.newVote(script, justification, submitter)
   }
 

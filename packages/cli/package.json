@@ -11,6 +11,7 @@
     "create-poll": "buidler create-poll --network rinkeby",
     "upgrade-app": "buidler upgrade-app --network rinkeby",
     "create-transfer": "buidler create-transfer --network rinkeby",
+    "change-governor": "buidler change-governor --network rinkeby",
     "change-agreement": "buidler change-agreement --network rinkeby",
     "change-voting-support": "buidler change-voting-support --network rinkeby",
     "change-court-settings": "buidler change-court-settings --network rinkeby",
