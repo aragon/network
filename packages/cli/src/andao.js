@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { utf8ToHex } = require('web3-utils')
+const { utf8ToHex, fromWei } = require('web3-utils')
 const { EMPTY_CALLS_SCRIPT } = require('@aragon/contract-helpers-test/src/aragon-os/evmScript')
 const { bn, getEventArgument, MAX_UINT192, ZERO_ADDRESS, EMPTY_BYTES } = require('@aragon/contract-helpers-test')
 
@@ -136,8 +136,7 @@ module.exports = class ANDAO {
 
   async newTokenTransfer(token, recipient, amount, justification, submitter) {
     console.log('Creating finance transfer proposal...')
-    const agent = await this.agent()
-    const script = encodeTokenTransfer(agent.address, token, recipient, amount)
+    const script = encodeTokenTransfer(this.config.agent, token, recipient, amount)
     return this.newVote(script, justification, submitter)
   }
 
@@ -149,34 +148,30 @@ module.exports = class ANDAO {
 
   async changeAgreement(rawContent, justification, submitter) {
     console.log('Creating a proposal to change the agreement version...')
-    const agreement = await this.agreement()
     const { arbitrator, aragonAppFeesCashier, title } = await this.setting()
     const content = await this._loadAgreement(rawContent, submitter)
-    const script = encodeAgreementChange(agreement.address, arbitrator, aragonAppFeesCashier !== ZERO_ADDRESS, title, content)
+    const script = encodeAgreementChange(this.config.agreement, arbitrator, aragonAppFeesCashier !== ZERO_ADDRESS, title, content)
     return this.newVote(script, justification, submitter)
   }
 
   async changeVotingSupport(support, justification, submitter) {
     console.log('Creating a proposal to change the voting required support...')
-    const voting = await this.voting()
-    const script = encodeVotingSupportChange(voting.address, support)
+    const script = encodeVotingSupportChange(this.config.voting, support)
     return this.newVote(script, justification, submitter)
   }
 
   async changeGovernor(governor, justification, submitter) {
     console.log('Creating a proposal to change Aragon Court governor...')
-    const agent = await this.agent()
     const { arbitrator } = await this.setting()
-    const script = encodeGovernorChange(agent.address, arbitrator, governor)
+    const script = encodeGovernorChange(this.config.agent, arbitrator, governor)
     return this.newVote(script, justification, submitter)
   }
 
   async changeCourtSettings(termId, justification, submitter) {
     console.log('Submitting proposal to change Aragon Court config...')
-    const agent = await this.agent()
     const { arbitrator } = await this.setting()
     const courtConfig = require('../court.config')[this.network]
-    const script = encodeCourtConfigChange(agent.address, arbitrator, courtConfig, termId)
+    const script = encodeCourtConfigChange(this.config.agent, arbitrator, courtConfig, termId)
     return this.newVote(script, justification, submitter)
   }
 
@@ -252,6 +247,38 @@ module.exports = class ANDAO {
     console.log(`Settled proposal #${voteId}`)
   }
 
+  async close(voteId, from) {
+    console.log('Closing action...')
+    const voting = await this.voting()
+    const { actionId } = await voting.getVote(voteId)
+    const agreement = await this.agreement()
+    await agreement.closeAction(actionId, { from })
+    console.log(`Closed proposal #${voteId}`)
+  }
+
+  async stake(tokenAddress, amount, from) {
+    const token = await this._getInstance('ERC20', tokenAddress)
+    const symbol = await token.symbol()
+    const staking = await this.stakingPool(token)
+    await this._logStakingState(staking, symbol, from)
+    console.log(`\nStaking ${symbol} ${fromWei(amount)}...`)
+    await this._approveToken(token, from, staking.address, bn(amount))
+    await staking.stake(bn(amount), EMPTY_BYTES, { from })
+    console.log(`Staked successfully`)
+    await this._logStakingState(staking, symbol, from)
+  }
+
+  async unstake(tokenAddress, amount, from) {
+    const token = await this._getInstance('ERC20', tokenAddress)
+    const symbol = await token.symbol()
+    const staking = await this.stakingPool(token)
+    await this._logStakingState(staking, symbol, from)
+    console.log(`\nUnstaking ${symbol} ${fromWei(amount)}...`)
+    await staking.unstake(bn(amount), EMPTY_BYTES, { from })
+    console.log(`Unstaked successfully`)
+    await this._logStakingState(staking, symbol, from)
+  }
+
   async _approveToken(token, from, to, amount) {
     const allowance = await token.allowance(from, to)
     if (allowance.gte(amount)) return
@@ -287,6 +314,17 @@ module.exports = class ANDAO {
 
     console.log(`Sending justification as plain text: ${justification}`)
     return utf8ToHex(justification)
+  }
+
+  async _logStakingState(staking, symbol, user) {
+    const { staked, locked: totalLocked } = await staking.getBalancesOf(user)
+    const { amount: agreementLocked } = await staking.getLock(user, this.config.agreement)
+    const available = staked.sub(totalLocked)
+    console.log(`\nStaking status for user ${user}`)
+    console.log(`- Staked:                   ${symbol} ${fromWei(staked.toString())}`)
+    console.log(`- Available:                ${symbol} ${fromWei(available.toString())}`)
+    console.log(`- Total locked:             ${symbol} ${fromWei(totalLocked.toString())}`)
+    console.log(`- Locked on this Agreement: ${symbol} ${fromWei(agreementLocked.toString())}`)
   }
 
   _castSupport(rawSupport) {

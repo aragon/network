@@ -100,6 +100,18 @@ task('close-proposal', 'Close an AN DAO proposal')
   .addParam('from', 'Address closing the proposal')
   .setAction(({ proposal, from }, bre) => callANDAO(bre, 'close', [proposal, from]))
 
+task('stake', 'Stake amount of tokens in the staking pool')
+  .addParam('token', 'Address of the token to be staked in the staking pool')
+  .addParam('amount', 'Amount of tokens to be staked (with 18 decimals)')
+  .addParam('from', 'Address staking the tokens')
+  .setAction(({ token, amount, from }, bre) => callANDAO(bre, 'stake', [token, amount, from]))
+
+task('unstake', 'Unstake amount of tokens from staking pool')
+  .addParam('token', 'Address of the token to be unstaked from the staking pool')
+  .addParam('amount', 'Amount of tokens to be unstaked (with 18 decimals)')
+  .addParam('from', 'Address unstaking the tokens')
+  .setAction(({ token, amount, from }, bre) => callANDAO(bre, 'unstake', [token, amount, from]))
+
 const ETH_KEYS = process.env.ETH_KEYS || process.env.ETH_KEY
 
 module.exports = {

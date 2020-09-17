@@ -42,6 +42,8 @@ set-representative          Allow a second address as a representative
 delegate-vote               Delegate vote on an AN DAO proposal
 execute-proposal            Execute an AN DAO proposal
 close-proposal              Close an AN DAO proposal
+stake                       Stake amount of tokens in the staking pool
+unstake                     Unstake amount of tokens from staking pool
 help                        Prints this message
 ```
 

@@ -22,7 +22,9 @@
     "set-representative": "buidler set-representative --network rinkeby",
     "delegate-vote": "buidler delegate-vote --network rinkeby",
     "execute-proposal": "buidler execute-proposal --network rinkeby",
-    "close-proposal": "buidler close-proposal --network rinkeby"
+    "close-proposal": "buidler close-proposal --network rinkeby",
+    "stake": "buidler stake --network rinkeby",
+    "unstake": "buidler unstake --network rinkeby"
   },
   "devDependencies": {
     "@aragon/contract-helpers-test": "^0.1.0",
