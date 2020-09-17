@@ -10,7 +10,7 @@ module.exports = {
     title:                  'Aragon Network Agreement',
     content:                utf8ToHex('ipfs:QmdaYTJk6aV2pmVRx9EdV8kdDxD9yGFktd6hFskXSr4KDE'),   // AN DAO agreement proposal
     arbitrator:             '0x52180af656a1923024d1accf1d827ab85ce48878',                       // Aragon Court staging instance
-    stakingFactory:         '0x6a30c2de7359dB110b6322B41038674AE1D276Fb',                       // Staking factory instance on Rinkeby v0.3.1
+    stakingFactory:         '0xbd24605CB54D135414275Ac87608e4902ba6417e',                       // Staking factory instance on Rinkeby v0.3.1
   },
   disputableVoting1: {
     duration:               20 * MINUTE,
