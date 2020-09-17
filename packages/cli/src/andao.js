@@ -6,12 +6,23 @@ const { bn, getEventArgument, MAX_UINT192, ZERO_ADDRESS, EMPTY_BYTES } = require
 
 const config = require('../andao.config')
 const { ipfsUpload } = require('./ipfs-pinner')
-const { encodeTokenTransfer, encodeAppUpgrade, encodeGovernorChange, encodeAgreementChange, encodeVotingSupportChange, encodeCourtConfigChange } = require('./encoder')
+const {
+  encodeTokenTransfer,
+  encodeAppUpgrade,
+  encodeConfigGovernorChange,
+  encodeFundsGovernorChange,
+  encodeModulesGovernorChange,
+  encodeAgreementChange,
+  encodeVotingSupportChange,
+  encodeCourtConfigChange
+} = require('./encoder')
 
 module.exports = class ANDAO {
   constructor (network) {
     this.network = network
     this.config = config[network]
+    this._agents = []
+    this._votings = []
     this.stakingPools = {}
   }
 
@@ -20,14 +31,14 @@ module.exports = class ANDAO {
     return this._dao
   }
 
-  async agent() {
-    if (!this._agent) this._agent = await this._getInstance('Agent', this.config.agent)
-    return this._agent
+  async agent(index) {
+    if (!this._agents[index]) this._agents[index] = await this._getInstance('Agent', this.config.agents[index])
+    return this._agents[index]
   }
 
-  async voting() {
-    if (!this._voting) this._voting = await this._getInstance('DisputableVoting', this.config.voting)
-    return this._voting
+  async voting(index) {
+    if (!this._votings[index]) this._votings[index] = await this._getInstance('DisputableVoting', this.config.votings[index])
+    return this._votings[index]
   }
 
   async agreement() {
@@ -49,10 +60,10 @@ module.exports = class ANDAO {
     return agreement.getSetting(settingId)
   }
 
-  async collateralRequirement() {
+  async collateralRequirement(index) {
     const agreement = await this.agreement()
-    const { currentCollateralRequirementId } = await agreement.getDisputableInfo(this.config.voting)
-    const { collateralToken: tokenAddress, actionAmount, challengeAmount, challengeDuration } = await agreement.getCollateralRequirement(this.config.voting, currentCollateralRequirementId)
+    const { currentCollateralRequirementId } = await agreement.getDisputableInfo(this.config.votings[index])
+    const { collateralToken: tokenAddress, actionAmount, challengeAmount, challengeDuration } = await agreement.getCollateralRequirement(this.config.votings[index], currentCollateralRequirementId)
     const collateralToken = await this._getInstance('ERC20', tokenAddress)
     return { collateralToken, actionCollateral: actionAmount, challengeCollateral: challengeAmount, challengeDuration }
   }
@@ -94,7 +105,7 @@ module.exports = class ANDAO {
     }
 
     console.log('Allowing Agreement as a lock manager...')
-    const { collateralToken } = await this.collateralRequirement()
+    const { collateralToken } = await this.collateralRequirement(0)
     const staking = await this.stakingPool(collateralToken)
     const { allowance } = await staking.getLock(signer, agreement.address)
     if (allowance.eq(bn(0))) {
@@ -105,78 +116,98 @@ module.exports = class ANDAO {
     }
   }
 
-  async vote(voteId, supports, voter) {
-    console.log('Voting...')
-    const voting = await this.voting()
+  async vote(index, voteId, supports, voter) {
+    console.log(`Voting on voting #${index + 1}...`)
+    const voting = await this.voting(index)
     return voting.vote(voteId, this._castSupport(supports), { from: voter })
   }
 
-  async setRepresentative(representative, voter) {
-    console.log('Setting representative...')
-    const voting = await this.voting()
+  async setRepresentative(index, representative, voter) {
+    console.log(`Setting representative on voting #${index + 1}...`)
+    const voting = await this.voting(index)
     return voting.setRepresentative(representative, { from: voter })
   }
 
-  async delegateVote(voteId, supports, voters, representative) {
-    console.log('Delegate voting...')
-    const voting = await this.voting()
+  async delegateVote(index, voteId, supports, voters, representative) {
+    console.log(`Delegating vote on voting #${index + 1}...`)
+    const voting = await this.voting(index)
     return voting.voteOnBehalfOf(voteId, this._castSupport(supports), voters, { from: representative })
   }
 
-  async executeVote(voteId, script, from) {
-    console.log('Executing vote...')
-    const voting = await this.voting()
+  async executeVote(index, voteId, script, from) {
+    console.log(`Executing vote on voting #${index + 1}...`)
+    const voting = await this.voting(index)
     return voting.executeVote(voteId, script, { from })
   }
 
-  async newPoll(question, submitter) {
-    console.log('Creating poll...')
-    return this.newVote(EMPTY_CALLS_SCRIPT, question, submitter)
+  async newPoll(index, question, submitter) {
+    console.log(`Creating poll on voting #${index + 1}...`)
+    return this.newVote(index, EMPTY_CALLS_SCRIPT, question, submitter)
   }
 
-  async newTokenTransfer(token, recipient, amount, justification, submitter) {
-    console.log('Creating finance transfer proposal...')
-    const script = encodeTokenTransfer(this.config.agent, token, recipient, amount)
-    return this.newVote(script, justification, submitter)
+  async newTokenTransfer(index, token, recipient, amount, justification, submitter) {
+    console.log(`Creating finance transfer proposal on voting #${index + 1}...`)
+    const script = encodeTokenTransfer(this.config.agents[index], token, recipient, amount)
+    return this.newVote(index, script, justification, submitter)
   }
 
   async upgradeApp(appId, base, justification, submitter) {
-    console.log(`Creating a proposal to upgrade app ${appId} to base address ${base}...`)
+    const index  = 1
+    console.log(`Creating a proposal on voting #${index + 1} to upgrade app ${appId} to base address ${base}...`)
     const script = encodeAppUpgrade(this.config.dao, appId, base)
-    return this.newVote(script, justification, submitter)
+    return this.newVote(index, script, justification, submitter)
   }
 
   async changeAgreement(rawContent, justification, submitter) {
-    console.log('Creating a proposal to change the agreement version...')
+    const index  = 1
+    console.log(`Creating a proposal on voting #${index + 1} to change the agreement version...`)
     const { arbitrator, aragonAppFeesCashier, title } = await this.setting()
     const content = await this._loadAgreement(rawContent, submitter)
     const script = encodeAgreementChange(this.config.agreement, arbitrator, aragonAppFeesCashier !== ZERO_ADDRESS, title, content)
-    return this.newVote(script, justification, submitter)
+    return this.newVote(index, script, justification, submitter)
   }
 
-  async changeVotingSupport(support, justification, submitter) {
-    console.log('Creating a proposal to change the voting required support...')
-    const script = encodeVotingSupportChange(this.config.voting, support)
-    return this.newVote(script, justification, submitter)
+  async changeVotingSupport(index, support, justification, submitter) {
+    console.log(`Creating a proposal on voting #${index + 1} to change the voting required support...`)
+    const script = encodeVotingSupportChange(this.config.votings[1], support)
+    return this.newVote(index, script, justification, submitter)
   }
 
-  async changeGovernor(governor, justification, submitter) {
-    console.log('Creating a proposal to change Aragon Court governor...')
+  async changeConfigGovernor(governor, justification, submitter) {
+    const index = 0
+    console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court config governor...`)
     const { arbitrator } = await this.setting()
-    const script = encodeGovernorChange(this.config.agent, arbitrator, governor)
-    return this.newVote(script, justification, submitter)
+    const script = encodeConfigGovernorChange(this.config.agents[index], arbitrator, governor)
+    return this.newVote(index, script, justification, submitter)
+  }
+
+  async changeFundsGovernor(governor, justification, submitter) {
+    const index = 1
+    console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court funds governor...`)
+    const { arbitrator } = await this.setting()
+    const script = encodeFundsGovernorChange(this.config.agents[index], arbitrator, governor)
+    return this.newVote(index, script, justification, submitter)
+  }
+
+  async changeModulesGovernor(governor, justification, submitter) {
+    const index = 1
+    console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court modules governor...`)
+    const { arbitrator } = await this.setting()
+    const script = encodeModulesGovernorChange(this.config.agents[index], arbitrator, governor)
+    return this.newVote(index, script, justification, submitter)
   }
 
   async changeCourtSettings(termId, justification, submitter) {
+    const index = 1
     console.log('Submitting proposal to change Aragon Court config...')
     const { arbitrator } = await this.setting()
     const courtConfig = require('../court.config')[this.network]
-    const script = encodeCourtConfigChange(this.config.agent, arbitrator, courtConfig, termId)
-    return this.newVote(script, justification, submitter)
+    const script = encodeCourtConfigChange(this.config.agents[index], arbitrator, courtConfig, termId)
+    return this.newVote(index, script, justification, submitter)
   }
 
-  async newVote(script, rawJustification, submitter) {
-    const { collateralToken, actionCollateral } = await this.collateralRequirement()
+  async newVote(index, script, rawJustification, submitter) {
+    const { collateralToken, actionCollateral } = await this.collateralRequirement(index)
 
     if (actionCollateral.gt(bn(0))) {
       console.log('Staking action collateral...')
@@ -186,7 +217,7 @@ module.exports = class ANDAO {
     }
 
     console.log('Creating proposal...')
-    const voting = await this.voting()
+    const voting = await this.voting(index)
     const justification = await this._loadJustification(rawJustification, submitter)
     const receipt = await voting.newVote(script, justification, { from: submitter })
     const voteId = getEventArgument(receipt, 'StartVote', 'voteId')
@@ -194,22 +225,22 @@ module.exports = class ANDAO {
     if (script !== EMPTY_CALLS_SCRIPT) console.log(`\nRemember script submitted for future execution: ${script}`)
   }
 
-  async challenge(voteId, settlementOffer, rawJustification, challenger) {
+  async challenge(index, voteId, settlementOffer, rawJustification, challenger) {
     console.log('Approving dispute fees and challenge collateral...')
     const agreement = await this.agreement()
     const { feeAmount } = await this.getDisputeFees()
-    const { collateralToken, challengeCollateral } = await this.collateralRequirement()
+    const { collateralToken, challengeCollateral } = await this.collateralRequirement(index)
     await this._approveToken(collateralToken, challenger, agreement.address, challengeCollateral.add(feeAmount))
 
     console.log('Challenging proposal...')
-    const voting = await this.voting()
+    const voting = await this.voting(index)
     const { actionId } = await voting.getVote(voteId)
     const justification = await this._loadJustification(rawJustification, challenger)
     await agreement.challengeAction(actionId, settlementOffer, true, justification, { from: challenger })
     console.log(`Challenged proposal #${voteId}`)
   }
 
-  async dispute(voteId, submitter) {
+  async dispute(index, voteId, submitter) {
     console.log('Approving dispute fees...')
     const agreement = await this.agreement()
     const { feeToken: disputeFeeToken, feeAmount: disputeFeeAmount } = await this.getDisputeFees()
@@ -230,7 +261,7 @@ module.exports = class ANDAO {
     }
 
     console.log(`Disputing action...`)
-    const voting = await this.voting()
+    const voting = await this.voting(index)
     const { actionId } = await voting.getVote(voteId)
     const receipt = await agreement.disputeAction(actionId, true, { from: submitter })
     const challengeId = getEventArgument(receipt, 'ActionDisputed', 'challengeId', { decodeForAbi: agreement.abi })
@@ -238,18 +269,18 @@ module.exports = class ANDAO {
     console.log(`Disputed proposal #${voteId} (dispute #${disputeId})!`)
   }
 
-  async settle(voteId, from) {
+  async settle(index, voteId, from) {
     console.log('Settling action...')
-    const voting = await this.voting()
+    const voting = await this.voting(index)
     const { actionId } = await voting.getVote(voteId)
     const agreement = await this.agreement()
     await agreement.settleAction(actionId, { from })
     console.log(`Settled proposal #${voteId}`)
   }
 
-  async close(voteId, from) {
+  async close(index, voteId, from) {
     console.log('Closing action...')
-    const voting = await this.voting()
+    const voting = await this.voting(index)
     const { actionId } = await voting.getVote(voteId)
     const agreement = await this.agreement()
     await agreement.closeAction(actionId, { from })

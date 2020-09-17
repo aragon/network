@@ -44,8 +44,22 @@ function encodeAgreementChange(agreement, arbitrator, setCashier, title, content
   return encodeCallsScript([{ to: agreement, data }])
 }
 
-function encodeGovernorChange(agent, court, governor) {
+function encodeConfigGovernorChange(agent, court, governor) {
   const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeConfigGovernor')
+  const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
+  const agentData = encodeExecute(court, 0, changeGovernorData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeFundsGovernorChange(agent, court, governor) {
+  const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeFundsGovernor')
+  const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
+  const agentData = encodeExecute(court, 0, changeGovernorData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeModulesGovernorChange(agent, court, governor) {
+  const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeModulesGovernor')
   const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
   const agentData = encodeExecute(court, 0, changeGovernorData)
   return encodeCallsScript([{ to: agent, data: agentData }])
@@ -100,6 +114,8 @@ module.exports = {
   encodeTokenTransfer,
   encodeAgreementChange,
   encodeVotingSupportChange,
-  encodeGovernorChange,
+  encodeConfigGovernorChange,
+  encodeFundsGovernorChange,
+  encodeModulesGovernorChange,
   encodeCourtConfigChange,
 }
