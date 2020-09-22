@@ -31,8 +31,13 @@ sign                        Sign the latest AN DAO agreement version
 create-poll                 Submit a poll to the AN DAO
 create-transfer             Submit a token transfer to the AN DAO
 change-agreement            Change an Aragon Network agreement content
-change-court-settings       Change an Aragon Court module
 change-voting-support       Change an Aragon Network voting required support
+change-court-settings       Change an Aragon Court module
+change-court-app-fee        Change an Aragon Court app fee
+upgrade-court-module        Upgrade Aragon Court module
+change-config-governor      Change the config governor of Aragon Court
+change-funds-gorvenor       Change the funds governor of Aragon Court
+change-modules-gorvenor     Change the modules governor of Aragon Court
 upgrade-app                 Upgrade an Aragon Network app
 challenge                   Challenge an AN DAO proposal
 dispute                     Dispute an AN DAO proposal to Aragon Court

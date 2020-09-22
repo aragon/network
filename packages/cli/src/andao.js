@@ -14,7 +14,9 @@ const {
   encodeModulesGovernorChange,
   encodeAgreementChange,
   encodeVotingSupportChange,
-  encodeCourtConfigChange
+  encodeAppFeeChange,
+  encodeCourtConfigChange,
+  encodeCourtModuleUpgrade,
 } = require('./encoder')
 
 module.exports = class ANDAO {
@@ -178,7 +180,7 @@ module.exports = class ANDAO {
     console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court config governor...`)
     const { arbitrator } = await this.setting()
     const script = encodeConfigGovernorChange(this.config.agents[index], arbitrator, governor)
-    return this.newVote(index, script, justification, submitter)
+    return this.newVote(script, justification, submitter)
   }
 
   async changeFundsGovernor(governor, justification, submitter) {
@@ -198,11 +200,29 @@ module.exports = class ANDAO {
   }
 
   async changeCourtSettings(termId, justification, submitter) {
-    const index = 1
-    console.log('Submitting proposal to change Aragon Court config...')
+    const index = 0
+    console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court config...`)
     const { arbitrator } = await this.setting()
     const courtConfig = require('../court.config')[this.network]
     const script = encodeCourtConfigChange(this.config.agents[index], arbitrator, courtConfig, termId)
+    return this.newVote(index, script, justification, submitter)
+  }
+
+  async changeAppFee(appId, feeAmount, justification, submitter) {
+    const index = 0
+    console.log(`Creating a proposal on voting #${index + 1} to change Aragon Court app fee for app ${appId}...`)
+    const { arbitrator: arbitratorAddress } = await this.setting()
+    const arbitrator = await this._getInstance('IArbitrator', arbitratorAddress)
+    const { recipient: subscriptions, feeToken: feeToken } = await arbitrator.getSubscriptionFees(ZERO_ADDRESS)
+    const script = encodeAppFeeChange(this.config.agent, subscriptions, appId, feeToken, feeAmount)
+    return this.newVote(index, script, justification, submitter)
+  }
+
+  async upgradeCourtModule(id, address, justification, submitter) {
+    const index = 1
+    console.log(`Creating a proposal on voting #${index + 1} to upgrade Aragon Court module ${id} to ${address}...`)
+    const { arbitrator } = await this.setting()
+    const script = encodeCourtModuleUpgrade(this.config.agent, arbitrator, id, address)
     return this.newVote(index, script, justification, submitter)
   }
 
