@@ -6,7 +6,18 @@ const { bn, getEventArgument, MAX_UINT192, ZERO_ADDRESS, EMPTY_BYTES } = require
 
 const config = require('../andao.config')
 const { ipfsUpload } = require('./ipfs-pinner')
-const { encodeTokenTransfer, encodeAppUpgrade, encodeGovernorChange, encodeAgreementChange, encodeVotingSupportChange, encodeCourtConfigChange } = require('./encoder')
+const {
+  encodeTokenTransfer,
+  encodeAppUpgrade,
+  encodeConfigGovernorChange,
+  encodeFundsGovernorChange,
+  encodeModulesGovernorChange,
+  encodeAgreementChange,
+  encodeVotingSupportChange,
+  encodeAppFeeChange,
+  encodeCourtConfigChange,
+  encodeCourtModuleUpgrade,
+} = require('./encoder')
 
 module.exports = class ANDAO {
   constructor (network) {
@@ -160,10 +171,24 @@ module.exports = class ANDAO {
     return this.newVote(script, justification, submitter)
   }
 
-  async changeGovernor(governor, justification, submitter) {
-    console.log('Creating a proposal to change Aragon Court governor...')
+  async changeConfigGovernor(governor, justification, submitter) {
+    console.log('Creating a proposal to change Aragon Court config governor...')
     const { arbitrator } = await this.setting()
-    const script = encodeGovernorChange(this.config.agent, arbitrator, governor)
+    const script = encodeConfigGovernorChange(this.config.agent, arbitrator, governor)
+    return this.newVote(script, justification, submitter)
+  }
+
+  async changeFundsGovernor(governor, justification, submitter) {
+    console.log('Creating a proposal to change Aragon Court funds governor...')
+    const { arbitrator } = await this.setting()
+    const script = encodeFundsGovernorChange(this.config.agent, arbitrator, governor)
+    return this.newVote(script, justification, submitter)
+  }
+
+  async changeModulesGovernor(governor, justification, submitter) {
+    console.log('Creating a proposal to change Aragon Court modules governor...')
+    const { arbitrator } = await this.setting()
+    const script = encodeModulesGovernorChange(this.config.agent, arbitrator, governor)
     return this.newVote(script, justification, submitter)
   }
 
@@ -172,6 +197,22 @@ module.exports = class ANDAO {
     const { arbitrator } = await this.setting()
     const courtConfig = require('../court.config')[this.network]
     const script = encodeCourtConfigChange(this.config.agent, arbitrator, courtConfig, termId)
+    return this.newVote(script, justification, submitter)
+  }
+
+  async changeAppFee(appId, feeAmount, justification, submitter) {
+    console.log(`Submitting proposal to change Aragon Court app fee for app ${appId}...`)
+    const { arbitrator: arbitratorAddress } = await this.setting()
+    const arbitrator = await this._getInstance('IArbitrator', arbitratorAddress)
+    const { recipient: subscriptions, feeToken: feeToken } = await arbitrator.getSubscriptionFees(ZERO_ADDRESS)
+    const script = encodeAppFeeChange(this.config.agent, subscriptions, appId, feeToken, feeAmount)
+    return this.newVote(script, justification, submitter)
+  }
+
+  async upgradeCourtModule(id, address, justification, submitter) {
+    console.log(`Creating a proposal to upgrade Aragon Court module ${id} to ${address}...`)
+    const { arbitrator } = await this.setting()
+    const script = encodeCourtModuleUpgrade(this.config.agent, arbitrator, id, address)
     return this.newVote(script, justification, submitter)
   }
 

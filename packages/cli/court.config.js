@@ -1,19 +1,19 @@
 const { bn, bigExp } = require('@aragon/contract-helpers-test')
 
-const DAI = '0x3af6b2f907f0c55f279e0ed65751984e6cdc4a42'  // Fake DAI used for Staging instance
+const ANT = '0x245B220211b7D3C6dCB001Aa2C3bf48ac4CaA03E'  // Fake ANT used for Staging instance
 
 module.exports = {
   rinkeby: {
-    feeToken:                      DAI,                   // fee token for the court is DAI
+    feeToken:                      ANT,                   // fee token for the court is ANT
     evidenceTerms:                 bn(21),                // evidence period lasts 21 terms (7 days)
     commitTerms:                   bn(6),                 // vote commits last 6 terms (2 days)
     revealTerms:                   bn(6),                 // vote reveals last 6 terms (2 days)
     appealTerms:                   bn(6),                 // appeals last 6 terms (2 days)
     appealConfirmTerms:            bn(6),                 // appeal confirmations last 6 terms (2 days)
     maxJurorsPerDraftBatch:        bn(81),                // max number of jurors drafted per batch
-    jurorFee:                      bigExp(40, 18),        // 40 fee tokens for juror fees
-    draftFee:                      bigExp(6, 18),         // 6 fee tokens for draft fees
-    settleFee:                     bigExp(4, 18),         // 4 fee tokens for settle fees
+    jurorFee:                      bigExp(10, 18),        // 10 fee tokens for juror fees
+    draftFee:                      bigExp(3, 18),         // 3 fee tokens for draft fees
+    settleFee:                     bigExp(2, 18),         // 2 fee tokens for settle fees
     penaltyPct:                    bn(1000),              // 10% of the min active balance will be locked to each drafted juror
     finalRoundReduction:           bn(5000),              // 50% of discount for final rounds
     firstRoundJurorsNumber:        bn(3),                 // disputes will start with 3 jurors

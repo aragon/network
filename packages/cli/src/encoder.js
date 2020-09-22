@@ -4,6 +4,7 @@ const KERNEL_ABI = require('../artifacts/Kernel.json').abi
 const VOTING_ABI = require('../artifacts/DisputableVoting.json').abi
 const AGREEMENT_ABI = require('../artifacts/Agreement.json').abi
 const ARAGON_COURT_ABI = require('../artifacts/AragonCourt.json').abi
+const ARAGON_COURT_SUBSCRIPTIONS_ABI = require('../artifacts/CourtSubscriptions.json').abi
 const { EMPTY_CALLS_SCRIPT } = require('@aragon/contract-helpers-test/src/aragon-os/evmScript')
 
 function encodeCallsScript(actions) {
@@ -44,10 +45,38 @@ function encodeAgreementChange(agreement, arbitrator, setCashier, title, content
   return encodeCallsScript([{ to: agreement, data }])
 }
 
-function encodeGovernorChange(agent, court, governor) {
+function encodeConfigGovernorChange(agent, court, governor) {
   const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeConfigGovernor')
   const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
   const agentData = encodeExecute(court, 0, changeGovernorData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeFundsGovernorChange(agent, court, governor) {
+  const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeFundsGovernor')
+  const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
+  const agentData = encodeExecute(court, 0, changeGovernorData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeModulesGovernorChange(agent, court, governor) {
+  const changeGovernorABI = getFunctionABI(ARAGON_COURT_ABI, 'changeModulesGovernor')
+  const changeGovernorData = abi.encodeFunctionCall(changeGovernorABI, [governor])
+  const agentData = encodeExecute(court, 0, changeGovernorData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeCourtModuleUpgrade(agent, court, id, address) {
+  const setModulesABI = getFunctionABI(ARAGON_COURT_ABI, 'setModules')
+  const setModulesData = abi.encodeFunctionCall(setModulesABI, [[id], [address]])
+  const agentData = encodeExecute(court, 0, setModulesData)
+  return encodeCallsScript([{ to: agent, data: agentData }])
+}
+
+function encodeAppFeeChange(agent, subscriptions, appId, feeToken, feeAmount) {
+  const setAppFeeABI = getFunctionABI(ARAGON_COURT_SUBSCRIPTIONS_ABI, 'setAppFee')
+  const setAppFeeData = abi.encodeFunctionCall(setAppFeeABI, [appId, feeToken, feeAmount])
+  const agentData = encodeExecute(subscriptions, 0, setAppFeeData)
   return encodeCallsScript([{ to: agent, data: agentData }])
 }
 
@@ -100,6 +129,10 @@ module.exports = {
   encodeTokenTransfer,
   encodeAgreementChange,
   encodeVotingSupportChange,
-  encodeGovernorChange,
+  encodeConfigGovernorChange,
+  encodeFundsGovernorChange,
+  encodeModulesGovernorChange,
+  encodeCourtModuleUpgrade,
   encodeCourtConfigChange,
+  encodeAppFeeChange,
 }
