@@ -248,11 +248,23 @@ module.exports = class ANDAO {
   }
 
   async challenge(voteId, settlementOffer, rawJustification, challenger) {
-    console.log('Approving dispute fees and challenge collateral...')
     const agreement = await this.agreement()
-    const { feeAmount } = await this.getDisputeFees()
+    const { feeAmount, feeToken } = await this.getDisputeFees()
     const { collateralToken, challengeCollateral } = await this.collateralRequirement()
-    await this._approveToken(collateralToken, challenger, agreement.address, challengeCollateral.add(feeAmount))
+
+    if (feeToken.address === collateralToken.address) {
+      console.log('Approving dispute fees and challenge collateral...')
+      await this._approveToken(collateralToken, challenger, agreement.address, challengeCollateral.add(feeAmount))
+    } else {
+      if (feeAmount.gt(bn(0))) {
+        console.log('Approving dispute fees...')
+        await this._approveToken(feeToken, challenger, agreement.address, feeAmount)
+      }
+      if (challengeCollateral.gt(bn(0))) {
+        console.log('Approving challenge collateral...')
+        await this._approveToken(collateralToken, challenger, agreement.address, challengeCollateral)
+      }
+    }
 
     console.log('Challenging proposal...')
     const voting = await this.voting()
