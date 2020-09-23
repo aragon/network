@@ -33,6 +33,9 @@ module.exports = {
       ],
     },
   },
+  mocha: {
+    timeout: 50000,
+  },
   solc: {
     version: '0.5.17',
     optimizer: {
