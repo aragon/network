@@ -26,51 +26,51 @@ contract('AN DAO', ([owner]) => {
   let token, template, dao, acl, evmScriptRegistry
   let voting1, voting2, agent1, agent2, agreement, votingAggregator
 
-  before('deploy apps, token and template', async () => {
-    // Agreement, DisputableVoting and VotingAggregator are not in aragen yet, so we need to deploy it and publish it
-    await deployApps(owner, ENS)
-    token = await MiniMeToken.new(ZERO_ADDRESS, ZERO_ADDRESS, 0, 'Aragon Network Token', 18, 'ANT', true)
-    template = await ANDAOTemplate.new(DAO_FACTORY, ENS, [APP_IDS['agreement'], APP_IDS['disputable-voting'], APP_IDS['voting-aggregator']])
-  })
-
-  before('create instance', async () => {
-    const stakingFactory = await StakingFactory.new()
-    const daoAgreementReceipt = await template.createDaoAndInstallAgreement(token.address, config.agreement.title, config.agreement.content, token.address, stakingFactory.address)
-    console.log('Tx #1 gas usage:', daoAgreementReceipt.receipt.gasUsed)
-
-    const { disputableVoting1, disputableVoting2 } = config
-    disputableVoting1.collateralSettings[0] = token.address
-    disputableVoting2.collateralSettings[0] = token.address
-    const appsReceipt = await template.installApps(disputableVoting1.votingSettings, disputableVoting1.collateralSettings, disputableVoting2.votingSettings, disputableVoting2.collateralSettings)
-    console.log('Tx #2 gas usage:', appsReceipt.receipt.gasUsed)
-
-    await loadDAO(daoAgreementReceipt, appsReceipt)
-  })
-
-  const loadDAO = async (daoAgreementReceipt, appsReceipt) => {
-    dao = await Kernel.at(getEventArgument(daoAgreementReceipt, 'DeployDao', 'dao'))
-    acl = await ACL.at(await dao.acl())
-    evmScriptRegistry = await EVMScriptRegistry.at(await acl.getEVMScriptRegistry())
-
-    const installedAgreementApps = getInstalledAppsById(daoAgreementReceipt)
-    const installedApps = getInstalledAppsById(appsReceipt)
-
-    assert.equal(installedAgreementApps.agreement.length, 1, 'should have installed 1 agreement app')
-    agreement = await Agreement.at(installedAgreementApps.agreement[0])
-
-    assert.equal(installedAgreementApps['voting-aggregator'].length, 1, 'should have installed 1 voting aggregator app')
-    votingAggregator = await VotingAggregator.at(installedAgreementApps['voting-aggregator'][0])
-
-    assert.equal(installedApps['disputable-voting'].length, 2, 'should have installed 2 voting apps')
-    voting2 = await Voting.at(installedApps['disputable-voting'][0])
-    voting1 = await Voting.at(installedApps['disputable-voting'][1])
-
-    assert.equal(installedApps.agent.length, 2, 'should have installed 2 agent apps')
-    agent2 = await Agent.at(installedApps.agent[0])
-    agent1 = await Agent.at(installedApps.agent[1])
-  }
-
   describe('permissions', () => {
+    before('deploy apps, token and template', async () => {
+      // Agreement, DisputableVoting and VotingAggregator are not in aragen yet, so we need to deploy it and publish it
+      await deployApps(owner, ENS)
+      token = await MiniMeToken.new(ZERO_ADDRESS, ZERO_ADDRESS, 0, 'Aragon Network Token', 18, 'ANT', true)
+      template = await ANDAOTemplate.new(DAO_FACTORY, ENS, [APP_IDS['agreement'], APP_IDS['disputable-voting'], APP_IDS['voting-aggregator']])
+    })
+
+    before('create instance', async () => {
+      const stakingFactory = await StakingFactory.new()
+      const daoAgreementReceipt = await template.createDaoAndInstallAgreement(token.address, config.agreement.title, config.agreement.content, token.address, stakingFactory.address)
+      console.log('Tx #1 gas usage:', daoAgreementReceipt.receipt.gasUsed)
+
+      const { disputableVoting1, disputableVoting2 } = config
+      disputableVoting1.collateralSettings[0] = token.address
+      disputableVoting2.collateralSettings[0] = token.address
+      const appsReceipt = await template.installApps(disputableVoting1.votingSettings, disputableVoting1.collateralSettings, disputableVoting2.votingSettings, disputableVoting2.collateralSettings)
+      console.log('Tx #2 gas usage:', appsReceipt.receipt.gasUsed)
+
+      await loadDAO(daoAgreementReceipt, appsReceipt)
+    })
+
+    const loadDAO = async (daoAgreementReceipt, appsReceipt) => {
+      dao = await Kernel.at(getEventArgument(daoAgreementReceipt, 'DeployDao', 'dao'))
+      acl = await ACL.at(await dao.acl())
+      evmScriptRegistry = await EVMScriptRegistry.at(await acl.getEVMScriptRegistry())
+
+      const installedAgreementApps = getInstalledAppsById(daoAgreementReceipt)
+      const installedApps = getInstalledAppsById(appsReceipt)
+
+      assert.equal(installedAgreementApps.agreement.length, 1, 'should have installed 1 agreement app')
+      agreement = await Agreement.at(installedAgreementApps.agreement[0])
+
+      assert.equal(installedAgreementApps['voting-aggregator'].length, 1, 'should have installed 1 voting aggregator app')
+      votingAggregator = await VotingAggregator.at(installedAgreementApps['voting-aggregator'][0])
+
+      assert.equal(installedApps['disputable-voting'].length, 2, 'should have installed 2 voting apps')
+      voting2 = await Voting.at(installedApps['disputable-voting'][0])
+      voting1 = await Voting.at(installedApps['disputable-voting'][1])
+
+      assert.equal(installedApps.agent.length, 2, 'should have installed 2 agent apps')
+      agent2 = await Agent.at(installedApps.agent[0])
+      agent1 = await Agent.at(installedApps.agent[1])
+    }
+
     it('should have correct permissions for Kernel', async () => {
       await assertRole(acl, dao, voting2, 'APP_MANAGER_ROLE', voting2)
     })
