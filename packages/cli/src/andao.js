@@ -103,17 +103,6 @@ module.exports = class ANDAO {
     } else {
       console.log('Signer is up to date!')
     }
-
-    console.log('Allowing Agreement as a lock manager...')
-    const { collateralToken } = await this.collateralRequirement()
-    const staking = await this.stakingPool(collateralToken)
-    const { allowance } = await staking.getLock(signer, agreement.address)
-    if (allowance.eq(bn(0))) {
-      await staking.allowManager(agreement.address, MAX_UINT192, EMPTY_BYTES, { from: signer })
-      console.log('Agreement allowed!')
-    } else {
-      console.log('Agreement already allowed as a lock manager!')
-    }
   }
 
   async vote(voteId, supports, voter) {
@@ -224,10 +213,33 @@ module.exports = class ANDAO {
       const staking = await this.stakingPool(collateralToken)
       await this._approveToken(collateralToken, submitter, staking.address, actionCollateral)
       await staking.stake(actionCollateral, EMPTY_BYTES, { from: submitter })
+      const { allowance } = await staking.getLock(submitter, this.config.agreement)
+      if (allowance.eq(bn(0))) {
+        console.log('Allowing agreement as lock manager for collateral token...')
+        await staking.allowManager(this.config.agreement, MAX_UINT192, EMPTY_BYTES, { from: submitter })
+      }
+    }
+
+    const voting = await this.voting()
+    const { aragonAppFeesCashier: appFeesCashierAddress } = await this.setting()
+
+    if (appFeesCashierAddress !== ZERO_ADDRESS) {
+      console.log(`Staking court app fees...`)
+      const appId = await voting.appId()
+      const appFeesCashier = await this._getInstance('CourtSubscriptions', appFeesCashierAddress)
+      const { feeToken: feeTokenAddress, feeAmount } = await appFeesCashier.getAppFee(appId)
+      const feeToken = await this._getInstance('ERC20', feeTokenAddress)
+      const staking = await this.stakingPool(feeToken)
+      await this._approveToken(feeToken, submitter, staking.address, feeAmount)
+      await staking.stake(feeAmount, EMPTY_BYTES, { from: submitter })
+      const { allowance } = await staking.getLock(submitter, this.config.agreement)
+      if (allowance.eq(bn(0))) {
+        console.log('Allowing agreement as lock manager for court app fee token...')
+        await staking.allowManager(this.config.agreement, MAX_UINT192, EMPTY_BYTES, { from: submitter })
+      }
     }
 
     console.log('Creating proposal...')
-    const voting = await this.voting()
     const justification = await this._loadJustification(rawJustification, submitter)
     const receipt = await voting.newVote(script, justification, { from: submitter })
     const voteId = getEventArgument(receipt, 'StartVote', 'voteId')
@@ -255,20 +267,6 @@ module.exports = class ANDAO {
     const agreement = await this.agreement()
     const { feeToken: disputeFeeToken, feeAmount: disputeFeeAmount } = await this.getDisputeFees()
     await this._approveToken(disputeFeeToken, submitter, agreement.address, disputeFeeAmount)
-
-    console.log(`Paying subscription fees...`)
-    const { arbitrator: arbitratorAddress } = await this.setting()
-    const arbitrator = await this._getInstance('IArbitrator', arbitratorAddress)
-    const { recipient: subscriptionsAddress, feeToken: subscriptionFeeTokenAddress, feeAmount: subscriptionFeeAmount } = await arbitrator.getSubscriptionFees(agreement.address)
-    if (subscriptionFeeAmount.gt(bn(0))) {
-      const subscriptionFeeToken = await this._getInstance('ERC20', subscriptionFeeTokenAddress)
-      await this._approveToken(subscriptionFeeToken, submitter, subscriptionsAddress, subscriptionFeeAmount)
-      const subscriptions = await this._getInstance('CourtSubscriptions', subscriptionsAddress)
-      const { lastPaymentPeriodId } = await subscriptions.getSubscriber(agreement.address)
-      const { newLastPeriodId } = await subscriptions.getOwedFeesDetails(agreement.address)
-      const periods = lastPaymentPeriodId.eq(bn(0)) ? 1 : newLastPeriodId.sub(lastPaymentPeriodId)
-      await subscriptions.payFees(agreement.address, periods, { from: submitter })
-    }
 
     console.log(`Disputing action...`)
     const voting = await this.voting()
