@@ -139,5 +139,5 @@ contract('AN DAO', ([owner]) => {
       await assertRole(acl, agreement, voting2, 'MANAGE_DISPUTABLE_ROLE', voting2)
       await assertMissingRole(acl, agreement, 'CHALLENGE_ROLE')
     })
-  }).timeout(50000)
+  })
 })
